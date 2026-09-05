@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Secret to Great Data Viz</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0f172a; 
+            color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* The interactive background canvas */
+        #canvas-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .story-container {
+            position: relative;
+            z-index: 10;
+            max-width: 650px;
+            padding: 2.5rem;
+            text-align: center;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Step styling and animations */
+        .step {
+            display: none; 
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+
+        .step.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        h1 { font-size: 2.5rem; font-weight: 800; line-height: 1.2; margin-bottom: 1rem; }
+        h2 { font-size: 1.8rem; font-weight: 600; color: #94a3b8; }
+        p { font-size: 1.25rem; line-height: 1.6; margin-bottom: 1.5rem; font-weight: 300; }
+        
+        .highlight { color: #38bdf8; }
+        
+        .benefits-list {
+            text-align: left;
+            margin: 2rem auto;
+            max-width: 400px;
+            list-style: none;
+            padding: 0;
+        }
+
+        .benefits-list li {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            transform: translateX(-20px);
+            opacity: 0;
+            animation: slideIn 0.5s forwards;
+        }
+
+        .benefits-list li:nth-child(1) { animation-delay: 0.1s; }
+        .benefits-list li:nth-child(2) { animation-delay: 0.3s; }
+        .benefits-list li:nth-child(3) { animation-delay: 0.5s; }
+        .benefits-list li:nth-child(4) { animation-delay: 0.7s; }
+
+        @keyframes slideIn {
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .continue-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #38bdf8, #2563eb);
+            color: white;
+            border: none;
+            padding: 14px 36px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-family: 'Inter', sans-serif;
+            text-decoration: none; 
+        }
+
+        .continue-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px #38bdf8;
+        }
+        
+        .continue-btn:active {
+            transform: translateY(1px);
+        }
+
+        .click-cue {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas-bg"></canvas>
+
+    <div class="story-container">
+        
+        <div class="step active" id="step-0" style="display: block;">
+            <h1>People keep asking me what <span class="highlight">"secret tool"</span> I use to make my data visualizations stand out.</h1>
+        </div>
+
+        <div class="step" id="step-1">
+            <h2>Tableau?</h2>
+            <h2>PowerBI?</h2>
+            <h2>Looker?</h2>
+            <h2>Matplotlib?</h2>
+        </div>
+
+        <div class="step" id="step-2">
+            <h1 style="font-size: 5rem;" class="highlight">Nope.</h1>
+        </div>
+
+        <div class="step" id="step-3">
+            <p>I’m going to share a slightly controversial opinion...</p>
+            <p>If you want your data to look incredible in a web browser, you should probably use the languages that were <strong>built specifically for the web browser.</strong></p>
+        </div>
+
+        <div class="step" id="step-4">
+            <p>For 30 years, the smartest engineers on the planet have been ruthlessly optimizing <strong>HTML, CSS, and JavaScript.</strong></p>
+            <p>So why do we spend hours wrestling with clunky drag-and-drop BI tools trying to make them look like modern web apps?</p>
+        </div>
+
+        <div class="step" id="step-5">
+            <p>When you code your visualizations directly, everything changes. Here is what you unlock:</p>
+            <ul class="benefits-list">
+                <li>🎨 <strong>Pixel-Perfect Control:</strong> No locked color palettes.</li>
+                <li>⚡️ <strong>Limitless Interactivity:</strong> If you can dream it, you can build it.</li>
+                <li>📱 <strong>True Responsiveness:</strong> Visuals that scale to mobile beautifully.</li>
+                <li>🔗 <strong>Seamless Integration:</strong> Native to your app, no 8-second iframe loads.</li>
+            </ul>
+        </div>
+
+        <div class="step" id="step-6">
+            <p>The day I switched to coding natively for the browser was the day my work stopped being just "charts"...</p>
+            <h1>And started being <span class="highlight">experiences.</span></h1>
+            <p>Yes, the learning curve is steeper. But the ceiling is infinitely higher.</p>
+        </div>
+        
+        <div class="step" id="step-7">
+            <h1>What's your take?</h1>
+            <p>Is the speed of drag-and-drop BI tools worth the design trade-off, or is coding from scratch the ultimate flex?</p>
+            <!-- UPDATED LINK HERE -->
+            <a href="https://www.linkedin.com/in/justinpurl/" target="_blank" class="continue-btn">Let's connect on LinkedIn</a>
+        </div>
+
+        <button class="continue-btn" id="next-btn">Continue</button>
+        <div class="click-cue" id="cue-text">Click to reveal</div>
+    </div>
+
+    <script>
+        // --- Story Progression Logic ---
+        let currentStep = 0;
+        const totalSteps = 7;
+        let isAnimating = false; 
+
+        function nextStep() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const currentElement = document.getElementById(`step-${currentStep}`);
+            
+            currentElement.classList.remove('active');
+            
+            setTimeout(() => {
+                currentElement.style.display = 'none';
+                
+                currentStep++;
+                
+                if (currentStep <= totalSteps) {
+                    const nextElement = document.getElementById(`step-${currentStep}`);
+                    nextElement.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        nextElement.classList.add('active');
+                        isAnimating = false; 
+                    }, 50);
+                }
+
+                if (currentStep === totalSteps) {
+                    document.getElementById('next-btn').style.display = 'none';
+                    document.getElementById('cue-text').style.display = 'none';
+                }
+            }, 500); 
+        }
+
+        document.getElementById('next-btn').addEventListener('click', nextStep);
+
+        // --- Interactive Background (Network Nodes) ---
+        const canvas = document.getElementById('canvas-bg');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+        let mouse = { x: null, y: null };
+
+        function initCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            particles = [];
+            let particleCount = Math.floor((width * height) / 20000); 
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 1.5;
+                this.vy = (Math.random() - 0.5) * 1.5;
+                this.radius = Math.random() * 2 + 1;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                if (this.y < 0 || this.y > height) this.vy *= -1;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = '#38bdf8';
+                ctx.fill();
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                
+                for (let j = i; j < particles.length; j++) {
+                    let dx = particles[i].x - particles[j].x;
+                    let dy = particles[i].y - particles[j].y;
+                    let dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (dist < 120) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(56, 189, 248, ${1 - dist/120})`;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+
+                if (mouse.x != null) {
+                    let dxMouse = particles[i].x - mouse.x;
+                    let dyMouse = particles[i].y - mouse.y;
+                    let distMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
+                    if (distMouse < 150) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${1 - distMouse/150})`;
+                        ctx.lineWidth = 1.5;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(mouse.x, mouse.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', initCanvas);
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+        window.addEventListener('mouseout', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        initCanvas();
+        animate();
+    </script>
+</body>
+</html>
