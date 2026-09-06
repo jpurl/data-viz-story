@@ -33,18 +33,23 @@
             pointer-events: none;
         }
 
+        /* Fluid sizing for mobile screens */
         .story-container {
             position: relative;
             z-index: 10;
+            width: 90%; /* Leaves margin on small screens */
             max-width: 650px;
-            padding: 2.5rem;
+            padding: clamp(1.5rem, 5vw, 2.5rem); /* Shrinks padding on mobile */
             text-align: center;
-            background: rgba(15, 23, 42, 0.65);
+            background: rgba(15, 23, 42, 0.75);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            /* Allows scrolling inside the box on very short landscape phone screens */
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         /* Step styling and animations */
@@ -60,9 +65,10 @@
             transform: translateY(0);
         }
 
-        h1 { font-size: 2.5rem; font-weight: 800; line-height: 1.2; margin-bottom: 1rem; }
-        h2 { font-size: 1.8rem; font-weight: 600; color: #94a3b8; }
-        p { font-size: 1.25rem; line-height: 1.6; margin-bottom: 1.5rem; font-weight: 300; }
+        /* Accessible, responsive typography */
+        h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 800; line-height: 1.2; margin-bottom: 1rem; }
+        h2 { font-size: clamp(1.4rem, 4vw, 1.8rem); font-weight: 600; color: #94a3b8; }
+        p { font-size: clamp(1rem, 3vw, 1.25rem); line-height: 1.6; margin-bottom: 1.5rem; font-weight: 300; }
         
         .highlight { color: #38bdf8; }
         
@@ -75,7 +81,7 @@
         }
 
         .benefits-list li {
-            font-size: 1.1rem;
+            font-size: clamp(0.95rem, 2.5vw, 1.1rem);
             margin-bottom: 1rem;
             padding: 12px 16px;
             background: rgba(255, 255, 255, 0.05);
@@ -94,12 +100,13 @@
             to { transform: translateX(0); opacity: 1; }
         }
 
+        /* Touch-friendly interactive buttons */
         .continue-btn {
             display: inline-block;
             background: linear-gradient(135deg, #38bdf8, #2563eb);
             color: white;
             border: none;
-            padding: 14px 36px;
+            padding: 16px 36px; /* Larger touch target for mobile */
             font-size: 1.1rem;
             font-weight: 600;
             border-radius: 30px;
@@ -108,6 +115,7 @@
             transition: transform 0.2s, box-shadow 0.2s;
             font-family: 'Inter', sans-serif;
             text-decoration: none; 
+            touch-action: manipulation; /* Prevents double-tap zoom on mobile */
         }
 
         .continue-btn:hover {
@@ -119,9 +127,15 @@
             transform: translateY(1px);
         }
 
+        /* Accessibility: Clear focus states for keyboard users */
+        .continue-btn:focus-visible {
+            outline: 3px solid #ffffff;
+            outline-offset: 4px;
+        }
+
         .click-cue {
             font-size: 0.85rem;
-            color: #64748b;
+            color: #94a3b8;
             margin-top: 15px;
             text-transform: uppercase;
             letter-spacing: 2px;
@@ -130,36 +144,37 @@
 </head>
 <body>
 
-    <canvas id="canvas-bg"></canvas>
+    <canvas id="canvas-bg" aria-hidden="true"></canvas>
 
-    <div class="story-container">
+    <!-- aria-live="polite" tells screen readers to read new steps out loud as they appear -->
+    <main class="story-container" aria-live="polite">
         
-        <div class="step active" id="step-0" style="display: block;">
+        <section class="step active" id="step-0" style="display: block;">
             <h1>People keep asking me what <span class="highlight">"secret tool"</span> I use to make my data visualizations stand out.</h1>
-        </div>
+        </section>
 
-        <div class="step" id="step-1">
+        <section class="step" id="step-1">
             <h2>Tableau?</h2>
             <h2>PowerBI?</h2>
             <h2>Looker?</h2>
             <h2>Matplotlib?</h2>
-        </div>
+        </section>
 
-        <div class="step" id="step-2">
-            <h1 style="font-size: 5rem;" class="highlight">Nope.</h1>
-        </div>
+        <section class="step" id="step-2">
+            <h1 style="font-size: clamp(3rem, 15vw, 5rem);" class="highlight">Nope.</h1>
+        </section>
 
-        <div class="step" id="step-3">
+        <section class="step" id="step-3">
             <p>I’m going to share a slightly controversial opinion...</p>
             <p>If you want your data to look incredible in a web browser, you should probably use the languages that were <strong>built specifically for the web browser.</strong></p>
-        </div>
+        </section>
 
-        <div class="step" id="step-4">
+        <section class="step" id="step-4">
             <p>For 30 years, the smartest engineers on the planet have been ruthlessly optimizing <strong>HTML, CSS, and JavaScript.</strong></p>
             <p>So why do we spend hours wrestling with clunky drag-and-drop BI tools trying to make them look like modern web apps?</p>
-        </div>
+        </section>
 
-        <div class="step" id="step-5">
+        <section class="step" id="step-5">
             <p>When you code your visualizations directly, everything changes. Here is what you unlock:</p>
             <ul class="benefits-list">
                 <li>🎨 <strong>Pixel-Perfect Control:</strong> No locked color palettes.</li>
@@ -167,24 +182,23 @@
                 <li>📱 <strong>True Responsiveness:</strong> Visuals that scale to mobile beautifully.</li>
                 <li>🔗 <strong>Seamless Integration:</strong> Native to your app, no 8-second iframe loads.</li>
             </ul>
-        </div>
+        </section>
 
-        <div class="step" id="step-6">
+        <section class="step" id="step-6">
             <p>The day I switched to coding natively for the browser was the day my work stopped being just "charts"...</p>
             <h1>And started being <span class="highlight">experiences.</span></h1>
             <p>Yes, the learning curve is steeper. But the ceiling is infinitely higher.</p>
-        </div>
+        </section>
         
-        <div class="step" id="step-7">
+        <section class="step" id="step-7">
             <h1>What's your take?</h1>
             <p>Is the speed of drag-and-drop BI tools worth the design trade-off, or is coding from scratch the ultimate flex?</p>
-            <!-- UPDATED LINK HERE -->
-            <a href="https://www.linkedin.com/in/justinpurl/" target="_blank" class="continue-btn">Let's connect on LinkedIn</a>
-        </div>
+            <a href="https://www.linkedin.com/in/justinpurl/" target="_blank" rel="noopener noreferrer" class="continue-btn">Let's connect on LinkedIn</a>
+        </section>
 
-        <button class="continue-btn" id="next-btn">Continue</button>
-        <div class="click-cue" id="cue-text">Click to reveal</div>
-    </div>
+        <button class="continue-btn" id="next-btn" aria-label="Continue to next slide">Continue</button>
+        <div class="click-cue" id="cue-text">Tap, Click, or Press Space</div>
+    </main>
 
     <script>
         // --- Story Progression Logic ---
@@ -197,12 +211,10 @@
             isAnimating = true;
 
             const currentElement = document.getElementById(`step-${currentStep}`);
-            
             currentElement.classList.remove('active');
             
             setTimeout(() => {
                 currentElement.style.display = 'none';
-                
                 currentStep++;
                 
                 if (currentStep <= totalSteps) {
@@ -222,7 +234,18 @@
             }, 500); 
         }
 
+        // Click Event
         document.getElementById('next-btn').addEventListener('click', nextStep);
+
+        // Accessibility: Allow Keyboard progression (Spacebar or Right Arrow)
+        window.addEventListener('keydown', (e) => {
+            if (currentStep < totalSteps && !isAnimating) {
+                if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'Enter') {
+                    e.preventDefault(); // Prevent page scroll on spacebar
+                    nextStep();
+                }
+            }
+        });
 
         // --- Interactive Background (Network Nodes) ---
         const canvas = document.getElementById('canvas-bg');
@@ -235,7 +258,8 @@
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
             particles = [];
-            let particleCount = Math.floor((width * height) / 20000); 
+            // Dynamically adjust particle count based on screen size (less particles on mobile = better battery)
+            let particleCount = Math.floor((width * height) / 25000); 
             for (let i = 0; i < particleCount; i++) {
                 particles.push(new Particle());
             }
@@ -303,11 +327,24 @@
         }
 
         window.addEventListener('resize', initCanvas);
+        
+        // Mouse Tracking
         window.addEventListener('mousemove', (e) => {
             mouse.x = e.clientX;
             mouse.y = e.clientY;
         });
         window.addEventListener('mouseout', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        // Mobile Touch Tracking (Makes the background nodes react to touch!)
+        window.addEventListener('touchmove', (e) => {
+            mouse.x = e.touches[0].clientX;
+            mouse.y = e.touches[0].clientY;
+        }, { passive: true });
+        
+        window.addEventListener('touchend', () => {
             mouse.x = null;
             mouse.y = null;
         });
