@@ -38,6 +38,8 @@
             background: radial-gradient(circle at 50% 50%, rgba(30, 41, 59, 1) 0%, var(--bg-base) 60%);
             z-index: -2;
         }
+        
+        /* Subtle noise texture */
         body::after {
             content: ""; position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -69,6 +71,7 @@
             font-size: 1.1rem; font-weight: 600; color: var(--text-main);
             margin: 0 0 20px 0; display: flex; justify-content: space-between; align-items: center; z-index: 10;
         }
+        
         .instruction { 
             font-size: 0.7rem; color: var(--text-muted); font-weight: 500; 
             text-transform: uppercase; letter-spacing: 1.5px; 
@@ -92,6 +95,7 @@
         .profile-img {
             width: 140px; height: 140px; border-radius: 50%; object-fit: cover;
             border: 2px solid rgba(255,255,255,0.1); box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            background-color: var(--bg-base);
         }
         .profile-content h1 { margin: 0; font-size: 2.2rem; font-weight: 800; letter-spacing: -0.5px; }
         .profile-content h2 { margin: 8px 0 20px 0; font-size: 1.05rem; color: var(--accent-blue); font-weight: 500; }
@@ -99,9 +103,7 @@
 
         /* --- QUADRANT 2: EXPERIENCE TIMELINE --- */
         #q-arc { padding: 0; }
-        .quad-title-overlay {
-            position: absolute; top: 30px; left: 30px; right: 30px; z-index: 20;
-        }
+        .quad-title-overlay { position: absolute; top: 30px; left: 30px; right: 30px; z-index: 20; }
         
         .arc-viewport {
             flex: 1; position: relative; width: 100%; height: 100%;
@@ -114,7 +116,7 @@
             pointer-events: none; z-index: 1;
         }
         
-        .arc-scene { position: absolute; width: 100%; height: 100%; transform-style: preserve-3d; }
+        .arc-scene { position: absolute; width: 100%; height: 100%; }
         
         .arc-card {
             position: absolute;
@@ -129,10 +131,11 @@
             padding: 24px; cursor: pointer;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             transform-origin: center left;
-            transition: all 0.3s ease;
+            transition: border-color 0.3s, background-color 0.3s;
             will-change: transform, opacity, filter;
             filter: grayscale(80%) brightness(0.6); 
         }
+        
         .arc-card h3 { margin: 0; font-size: 1.2rem; color: var(--text-muted); font-weight: 600; transition: color 0.3s; }
         .arc-card h4 { margin: 6px 0 12px 0; font-size: 0.9rem; color: var(--text-muted); font-weight: 400; }
         .arc-card .date { 
@@ -157,6 +160,7 @@
             position: absolute; bottom: 25px; left: 25px;
             display: flex; gap: 15px;
             font-size: 0.75rem; color: var(--text-muted); font-weight: 500;
+            pointer-events: none;
         }
         .legend-item { display: flex; align-items: center; gap: 6px; }
         .dot { width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
@@ -165,11 +169,12 @@
         .stack-viewport { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; }
         .paper {
             position: absolute; width: 85%; max-width: 550px;
-            background: rgba(20, 27, 41, 0.8); backdrop-filter: blur(12px);
+            background: rgba(20, 27, 41, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             color: var(--text-main); padding: 30px; border-radius: 16px;
             border: 1px solid var(--border-light); border-top: 2px solid var(--accent-blue);
             box-shadow: 0 20px 40px rgba(0,0,0,0.6); cursor: pointer;
-            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); user-select: none;
+            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s; 
+            user-select: none;
         }
         
         .paper:nth-last-child(1) { transform: translateY(0) scale(1); opacity: 1; z-index: 10; }
@@ -243,7 +248,8 @@
         <div class="quadrant">
             <div class="profile-content">
                 <div class="profile-img-container">
-                    <img src="profile.jpg" alt="Justin D. Purl" class="profile-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzNlNGE1YyIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1zaXplPSI1MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2ZmZiI+👨‍💻PC90ZXh0Pjwvc3ZnPg=='">
+                    <!-- Clean img tag ensures no parsing errors -->
+                    <img src="profile.jpg" alt="Justin D. Purl" class="profile-img">
                 </div>
                 <h1>Justin D. Purl</h1>
                 <h2>Head of People Systems & Analytics @ Archer</h2>
@@ -270,7 +276,7 @@
                 <span class="instruction">Hover to discover</span>
             </div>
             <canvas id="skills-canvas"></canvas>
-            <div class="legend" style="bottom: 15px;">
+            <div class="legend">
                 <div class="legend-item"><div class="dot" style="background: var(--accent-blue); color: var(--accent-blue);"></div> Tech & Tools</div>
                 <div class="legend-item"><div class="dot" style="background: var(--accent-purple); color: var(--accent-purple);"></div> Stats & Methods</div>
                 <div class="legend-item"><div class="dot" style="background: var(--accent-green); color: var(--accent-green);"></div> HR & Strategy</div>
@@ -286,257 +292,4 @@
             <div class="stack-viewport" id="pub-stack">
                 <div class="paper">
                     <span class="paper-year">2017</span>
-                    <h3>A computational model of self-efficacy’s various effects on performance</h3>
-                    <p>Vancouver, J. B., & Purl, J. D. <br>Journal of Applied Psychology, 102(4), 599-616.</p>
-                </div>
-                <div class="paper">
-                    <span class="paper-year">2019</span>
-                    <h3>Turnover modeling and event history analysis</h3>
-                    <p>McCloy, R., Purl, J., & Banjanovic, E. <br>Industrial & Org. Psychology.</p>
-                </div>
-                <div class="paper">
-                    <span class="paper-year">2021</span>
-                    <h3>Expert judgments to inform bayesian models of insider threat risk</h3>
-                    <p>Greitzer, F. L., Purl, J., et al. <br>JoWUA, 12(2), 3-47.</p>
-                </div>
-                <div class="paper">
-                    <span class="paper-year">2022</span>
-                    <h3>Demands, resources, well-being and strain: Meta-analyzing moderator effects</h3>
-                    <p>Fila, M. J., Purl, J., & Jang, R. <br>Applied Research in Quality of Life.</p>
-                </div>
-                <div class="paper">
-                    <span class="paper-year">2022</span>
-                    <h3>Advances in game-like personality assessment</h3>
-                    <p>Harman, J. L., & Purl, J. <br>Trends in Psychology, 1-15.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        /* =========================================
-           1. EXPERIENCE TIMELINE ENGINE
-           ========================================= */
-        const jobs = [
-            { id: 0, company: "Archer", title: "Head of People Systems & Analytics", date: "Apr 2026 - Present", monthsAgo: 5, 
-              bullets: ["Streamlined Workday and Greenhouse via interaction playbooks based on user journeys.", "Centralized workforce planning into a single dashboard aligning Finance, HRBP, and business leaders.", "Relaunched position management, comp planning, and recruiting templates."] },
-            { id: 1, company: "Gilead Sciences", title: "Assoc. Director of People Analytics", date: "Apr 2025 - Apr 2026", monthsAgo: 17, 
-              bullets: ["Managed 5-10 off-shore resources developing a custom agent to support an AI chatbot.", "Streamlined project management to increase delivery speed from 2 years to 3 months.", "Quantified the impact of compensation on employee retention and diagnosed drop-offs in underrepresented talent."] },
-            { id: 2, company: "Zscaler", title: "Head of People Analytics & Insights", date: "Apr 2024 - Apr 2025", monthsAgo: 29, 
-              bullets: ["Set strategy and vision for 7 analytics resources across the HR function.", "Designed and executed sentiment programs in partnership with the Culture team.", "Developed a forecast model of attrition with Finance and aggregated benchmark information to form effective DEI aspirations."] },
-            { id: 3, company: "TikTok", title: "Head of Global People Analytics", date: "Mar 2022 - Apr 2024", monthsAgo: 54, 
-              bullets: ["Identified key leadership behaviors from Natural Language Processing of performance review text.", "Streamlined interview processes by quantifying the ROI across multiple interview stages.", "Forecasted headcount growth accounting for fluctuations in the labor market through a depressed macro economy."] },
-            { id: 4, company: "Google", title: "Senior People Analyst", date: "Aug 2019 - Mar 2022", monthsAgo: 85, 
-              bullets: ["Lead Hiring Analyst: Developed advanced scoring methodologies globally to optimize validity and equity.", "Lead Innovation Analyst: Upgraded attrition modeling programs to incorporate survival analysis.", "Lead Productivity Analyst: Developed collaboration metrics to support evaluation of work-from-anywhere initiatives."] },
-            { id: 5, company: "HumRRO", title: "Research Scientist", date: "Sept 2015 - Aug 2019", monthsAgo: 132, 
-              bullets: ["Project Director: Led small teams on projects requiring complex analytic (NLP, Psychometrics) and programming experience.", "Innovation: Planned and executed development of an ontology of insider threat.", "Conducted psychometric analysis to support a large-scale educational testing program."] }
-        ];
-
-        const scene = document.getElementById('arc-scene');
-        const viewport = document.getElementById('arc-viewport');
-        const tlCanvas = document.getElementById('timeline-canvas');
-        const tlCtx = tlCanvas.getContext('2d');
-        
-        let currentScroll = 0, targetScroll = 0;
-        const SCROLL_MULTIPLIER = 25; 
-        const VERTICAL_SPREAD = 0.85; 
-        const maxScroll = 132 * SCROLL_MULTIPLIER; 
-
-        jobs.forEach((job) => {
-            job.basePos = job.monthsAgo * SCROLL_MULTIPLIER;
-            const el = document.createElement('div');
-            el.className = 'arc-card';
-            el.innerHTML = `<div class="date">${job.date}</div><h3>${job.company}</h3><h4>${job.title}</h4>`;
-            el.onclick = () => openModal(job);
-            job.element = el;
-            scene.appendChild(el);
-        });
-
-        function resizeTlCanvas() {
-            tlCanvas.width = tlCanvas.parentElement.clientWidth;
-            tlCanvas.height = tlCanvas.parentElement.clientHeight;
-        }
-        window.addEventListener('resize', resizeTlCanvas);
-        resizeTlCanvas();
-
-        function renderArc() {
-            currentScroll += (targetScroll - currentScroll) * 0.08; 
-            
-            const vpRect = viewport.getBoundingClientRect();
-            const cardLeftVisual = jobs[0].element.getBoundingClientRect().left - vpRect.left; 
-            const timelineX = Math.max(30, cardLeftVisual - 60); 
-
-            // 1. Update DOM Cards
-            jobs.forEach(job => {
-                const diff = job.basePos - currentScroll;
-                const absDiff = Math.abs(diff);
-
-                const yPos = diff * VERTICAL_SPREAD; 
-                
-                const isFocal = absDiff < 150;
-                if (isFocal) job.element.classList.add('active');
-                else job.element.classList.remove('active');
-
-                const scale = Math.max(1 - (absDiff / 800), 0.6); 
-                const opacity = Math.max(1 - (absDiff / 500), 0);
-                
-                const zIndex = Math.round(1000 - absDiff);
-                const pointer = opacity > 0.2 ? 'auto' : 'none';
-
-                job.element.style.transform = `translate(0, calc(-50% + ${yPos}px)) scale(${scale})`;
-                job.element.style.opacity = opacity;
-                job.element.style.zIndex = zIndex;
-                job.element.style.pointerEvents = pointer;
-            });
-
-            // 2. Draw Absolute Timeline on Canvas
-            tlCtx.clearRect(0, 0, tlCanvas.width, tlCanvas.height);
-            const centerY = tlCanvas.height / 2;
-
-            tlCtx.beginPath();
-            tlCtx.strokeStyle = "rgba(255, 255, 255, 0.08)";
-            tlCtx.lineWidth = 2;
-            tlCtx.moveTo(timelineX, 0);
-            tlCtx.lineTo(timelineX, tlCanvas.height);
-            tlCtx.stroke();
-
-            for(let m = -5; m <= 140; m++) {
-                let monthDiff = (m * SCROLL_MULTIPLIER) - currentScroll;
-                let y = centerY + (monthDiff * VERTICAL_SPREAD);
-                
-                if (y > -20 && y < tlCanvas.height + 20) {
-                    let date = new Date(2026, 8 - m, 1);
-                    let isJan = date.getMonth() === 0;
-                    
-                    tlCtx.beginPath();
-                    tlCtx.strokeStyle = isJan ? "rgba(255, 255, 255, 0.4)" : "rgba(255, 255, 255, 0.1)";
-                    tlCtx.lineWidth = isJan ? 2 : 1;
-                    tlCtx.moveTo(timelineX - (isJan ? 8 : 4), y);
-                    tlCtx.lineTo(timelineX + (isJan ? 8 : 4), y);
-                    tlCtx.stroke();
-                    
-                    if (isJan) {
-                        tlCtx.fillStyle = "rgba(255, 255, 255, 0.5)";
-                        tlCtx.font = "600 10px Inter";
-                        tlCtx.textAlign = "right";
-                        tlCtx.fillText(date.getFullYear(), timelineX - 14, y + 4);
-                    }
-                }
-            }
-
-            // 3. Draw Job Nodes & Connections
-            jobs.forEach(job => {
-                let diff = job.basePos - currentScroll;
-                let y = centerY + (diff * VERTICAL_SPREAD);
-                let isActive = Math.abs(diff) < 150;
-                
-                tlCtx.beginPath();
-                tlCtx.strokeStyle = isActive ? "rgba(56, 189, 248, 0.8)" : "rgba(56, 189, 248, 0.15)";
-                tlCtx.lineWidth = isActive ? 2 : 1;
-                tlCtx.moveTo(timelineX, y);
-                tlCtx.lineTo(cardLeftVisual, y);
-                tlCtx.stroke();
-                
-                tlCtx.beginPath();
-                tlCtx.arc(timelineX, y, isActive ? 6 : 4, 0, Math.PI*2);
-                tlCtx.fillStyle = isActive ? "#38bdf8" : "#090e17";
-                tlCtx.fill();
-                tlCtx.strokeStyle = isActive ? "#38bdf8" : "rgba(255,255,255,0.3)";
-                tlCtx.lineWidth = 2;
-                tlCtx.stroke();
-            });
-
-            requestAnimationFrame(renderArc);
-        }
-
-        viewport.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            targetScroll += e.deltaY * 0.8;
-            targetScroll = Math.max(-50, Math.min(targetScroll, maxScroll + 100)); 
-        }, { passive: false });
-
-        let isDragging = false, startY = 0, lastTargetScroll = 0;
-        viewport.addEventListener('pointerdown', (e) => {
-            isDragging = true; startY = e.clientY; lastTargetScroll = targetScroll;
-        });
-        window.addEventListener('pointermove', (e) => {
-            if (!isDragging) return;
-            targetScroll = lastTargetScroll + ((startY - e.clientY) * 2.5);
-            targetScroll = Math.max(-50, Math.min(targetScroll, maxScroll + 100));
-        });
-        window.addEventListener('pointerup', () => isDragging = false);
-
-        renderArc(); 
-
-        /* =========================================
-           2. MODAL LOGIC
-           ========================================= */
-        function openModal(job) {
-            document.getElementById('modal-company').innerText = job.company;
-            document.getElementById('modal-title').innerText = job.title;
-            const list = job.bullets.map(b => `<li>${b}</li>`).join('');
-            document.getElementById('modal-body').innerHTML = `<ul>${list}</ul>`;
-            document.getElementById('modal').classList.add('active');
-        }
-        function closeModal() { document.getElementById('modal').classList.remove('active'); }
-
-        /* =========================================
-           3. PUBLICATION STACK
-           ========================================= */
-        const stack = document.getElementById('pub-stack');
-        let pubClicks = 0;
-        const originalPapers = Array.from(stack.children); 
-
-        stack.addEventListener('click', function(e) {
-            if (stack.classList.contains('restacking')) return; 
-            
-            const topCard = stack.lastElementChild;
-            if (topCard && topCard.classList.contains('paper')) {
-                pubClicks++;
-                if (pubClicks >= originalPapers.length) {
-                    stack.classList.add('restacking');
-                    Array.from(stack.children).forEach((card) => {
-                        const rX = (Math.random() - 0.5) * 40;
-                        card.style.transform = `translateY(-150%) rotate(${rX}deg)`;
-                    });
-                    setTimeout(() => {
-                        stack.innerHTML = '';
-                        originalPapers.forEach(p => { p.style.transform = ''; stack.appendChild(p); });
-                        stack.classList.remove('restacking');
-                        pubClicks = 0;
-                    }, 600);
-                } else {
-                    topCard.classList.add('swipe-out');
-                    setTimeout(() => {
-                        topCard.classList.remove('swipe-out');
-                        stack.prepend(topCard); 
-                    }, 400); 
-                }
-            }
-        });
-
-        /* =========================================
-           4. SKILLS CONSTELLATION (Hierarchical)
-           ========================================= */
-        const skCanvas = document.getElementById('skills-canvas');
-        const skCtx = skCanvas.getContext('2d');
-        let skWidth, skHeight;
-        let clusters = [];
-        let mouse = { x: -1000, y: -1000 };
-
-        // Hierarchical Dataset based on Resume
-        const skillHierarchy = [
-            {
-                name: "Tech & Tools", rgb: "56, 189, 248",
-                nodes: [
-                    { id: "db", text: "Data Eng", level: 1 },
-                    { id: "s1", text: "Snowflake", level: 2, parent: "db" },
-                    { id: "s2", text: "Databricks", level: 2, parent: "db" },
-                    { id: "hris", text: "HRIS", level: 1 },
-                    { id: "s3", text: "Workday", level: 2, parent: "hris" },
-                    { id: "s4", text: "Greenhouse", level: 2, parent: "hris" },
-                    { id: "lang", text: "Languages", level: 1 },
-                    { id: "s5", text: "Python", level: 2, parent: "lang" },
-                    { id: "s6", text: "R", level: 2, parent: "lang" },
-                    { id: "s7", text: "SAS", level: 2, parent: "lang" },
-                    { id: "viz
+                    <h3>A computational
