@@ -12,7 +12,7 @@
             --bg-panel: rgba(20, 27, 41, 0.6);
             --border-light: rgba(255, 255, 255, 0.06);
             --text-main: #f8fafc;
-            --text-muted: #5e7392; /* Darkened for non-focal contrast */
+            --text-muted: #5e7392; 
             --text-active: #f8fafc;
             --accent-blue: #38bdf8;
             --accent-purple: #a78bfa;
@@ -114,12 +114,11 @@
             pointer-events: none; z-index: 1;
         }
         
-        /* The Cards */
         .arc-scene { position: absolute; width: 100%; height: 100%; transform-style: preserve-3d; }
         
         .arc-card {
             position: absolute;
-            left: clamp(100px, 15vw, 160px); /* Responsive placement from the left */
+            left: clamp(100px, 15vw, 160px);
             top: 50%;
             width: 80%; max-width: 450px;
             background: rgba(15, 20, 30, 0.4);
@@ -127,13 +126,12 @@
             border: 1px solid rgba(255,255,255,0.03);
             border-left: 3px solid rgba(56, 189, 248, 0.2);
             border-radius: 16px;
-            padding: 24px;
-            cursor: pointer;
+            padding: 24px; cursor: pointer;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             transform-origin: center left;
             transition: all 0.3s ease;
             will-change: transform, opacity, filter;
-            filter: grayscale(80%) brightness(0.6); /* Non-focal state */
+            filter: grayscale(80%) brightness(0.6); 
         }
         .arc-card h3 { margin: 0; font-size: 1.2rem; color: var(--text-muted); font-weight: 600; transition: color 0.3s; }
         .arc-card h4 { margin: 6px 0 12px 0; font-size: 0.9rem; color: var(--text-muted); font-weight: 400; }
@@ -142,7 +140,6 @@
             font-size: 0.75rem; color: var(--text-muted); font-weight: 600; transition: color 0.3s;
         }
 
-        /* The Focal (Active) State */
         .arc-card.active {
             background: rgba(20, 27, 41, 0.95);
             border: 1px solid rgba(255,255,255,0.1);
@@ -242,7 +239,6 @@
     </div>
 
     <div class="dashboard">
-        
         <!-- Profile -->
         <div class="quadrant">
             <div class="profile-content">
@@ -261,9 +257,7 @@
                 Experience Timeline
                 <span class="instruction">Scroll / Drag</span>
             </div>
-            
             <canvas id="timeline-canvas"></canvas>
-            
             <div class="arc-viewport" id="arc-viewport">
                 <div class="arc-scene" id="arc-scene"></div>
             </div>
@@ -273,10 +267,10 @@
         <div class="quadrant">
             <div class="quad-title">
                 Skills Ecosystem
-                <span class="instruction">Hover to connect</span>
+                <span class="instruction">Hover to discover</span>
             </div>
             <canvas id="skills-canvas"></canvas>
-            <div class="legend">
+            <div class="legend" style="bottom: 15px;">
                 <div class="legend-item"><div class="dot" style="background: var(--accent-blue); color: var(--accent-blue);"></div> Tech & Tools</div>
                 <div class="legend-item"><div class="dot" style="background: var(--accent-purple); color: var(--accent-purple);"></div> Stats & Methods</div>
                 <div class="legend-item"><div class="dot" style="background: var(--accent-green); color: var(--accent-green);"></div> HR & Strategy</div>
@@ -287,7 +281,7 @@
         <div class="quadrant">
             <div class="quad-title">
                 Select Publications
-                <span class="instruction">Tap top card to cycle</span>
+                <span class="instruction">Tap top card</span>
             </div>
             <div class="stack-viewport" id="pub-stack">
                 <div class="paper">
@@ -317,7 +311,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 
     <script>
@@ -325,7 +318,6 @@
            1. EXPERIENCE TIMELINE ENGINE
            ========================================= */
         const jobs = [
-            // "monthsAgo" represents exact mathematical distance from Sept 2026 (Month 0)
             { id: 0, company: "Archer", title: "Head of People Systems & Analytics", date: "Apr 2026 - Present", monthsAgo: 5, 
               bullets: ["Streamlined Workday and Greenhouse via interaction playbooks based on user journeys.", "Centralized workforce planning into a single dashboard aligning Finance, HRBP, and business leaders.", "Relaunched position management, comp planning, and recruiting templates."] },
             { id: 1, company: "Gilead Sciences", title: "Assoc. Director of People Analytics", date: "Apr 2025 - Apr 2026", monthsAgo: 17, 
@@ -346,10 +338,205 @@
         const tlCtx = tlCanvas.getContext('2d');
         
         let currentScroll = 0, targetScroll = 0;
-        const SCROLL_MULTIPLIER = 25; // How many pixels of scroll space 1 month equals
-        const VERTICAL_SPREAD = 0.85; // How far apart cards render vertically
-        const maxScroll = 132 * SCROLL_MULTIPLIER; // Limit scroll to earliest job
+        const SCROLL_MULTIPLIER = 25; 
+        const VERTICAL_SPREAD = 0.85; 
+        const maxScroll = 132 * SCROLL_MULTIPLIER; 
 
-        // Initialize cards in DOM
         jobs.forEach((job) => {
             job.basePos = job.monthsAgo * SCROLL_MULTIPLIER;
+            const el = document.createElement('div');
+            el.className = 'arc-card';
+            el.innerHTML = `<div class="date">${job.date}</div><h3>${job.company}</h3><h4>${job.title}</h4>`;
+            el.onclick = () => openModal(job);
+            job.element = el;
+            scene.appendChild(el);
+        });
+
+        function resizeTlCanvas() {
+            tlCanvas.width = tlCanvas.parentElement.clientWidth;
+            tlCanvas.height = tlCanvas.parentElement.clientHeight;
+        }
+        window.addEventListener('resize', resizeTlCanvas);
+        resizeTlCanvas();
+
+        function renderArc() {
+            currentScroll += (targetScroll - currentScroll) * 0.08; 
+            
+            const vpRect = viewport.getBoundingClientRect();
+            const cardLeftVisual = jobs[0].element.getBoundingClientRect().left - vpRect.left; 
+            const timelineX = Math.max(30, cardLeftVisual - 60); 
+
+            // 1. Update DOM Cards
+            jobs.forEach(job => {
+                const diff = job.basePos - currentScroll;
+                const absDiff = Math.abs(diff);
+
+                const yPos = diff * VERTICAL_SPREAD; 
+                
+                const isFocal = absDiff < 150;
+                if (isFocal) job.element.classList.add('active');
+                else job.element.classList.remove('active');
+
+                const scale = Math.max(1 - (absDiff / 800), 0.6); 
+                const opacity = Math.max(1 - (absDiff / 500), 0);
+                
+                const zIndex = Math.round(1000 - absDiff);
+                const pointer = opacity > 0.2 ? 'auto' : 'none';
+
+                job.element.style.transform = `translate(0, calc(-50% + ${yPos}px)) scale(${scale})`;
+                job.element.style.opacity = opacity;
+                job.element.style.zIndex = zIndex;
+                job.element.style.pointerEvents = pointer;
+            });
+
+            // 2. Draw Absolute Timeline on Canvas
+            tlCtx.clearRect(0, 0, tlCanvas.width, tlCanvas.height);
+            const centerY = tlCanvas.height / 2;
+
+            tlCtx.beginPath();
+            tlCtx.strokeStyle = "rgba(255, 255, 255, 0.08)";
+            tlCtx.lineWidth = 2;
+            tlCtx.moveTo(timelineX, 0);
+            tlCtx.lineTo(timelineX, tlCanvas.height);
+            tlCtx.stroke();
+
+            for(let m = -5; m <= 140; m++) {
+                let monthDiff = (m * SCROLL_MULTIPLIER) - currentScroll;
+                let y = centerY + (monthDiff * VERTICAL_SPREAD);
+                
+                if (y > -20 && y < tlCanvas.height + 20) {
+                    let date = new Date(2026, 8 - m, 1);
+                    let isJan = date.getMonth() === 0;
+                    
+                    tlCtx.beginPath();
+                    tlCtx.strokeStyle = isJan ? "rgba(255, 255, 255, 0.4)" : "rgba(255, 255, 255, 0.1)";
+                    tlCtx.lineWidth = isJan ? 2 : 1;
+                    tlCtx.moveTo(timelineX - (isJan ? 8 : 4), y);
+                    tlCtx.lineTo(timelineX + (isJan ? 8 : 4), y);
+                    tlCtx.stroke();
+                    
+                    if (isJan) {
+                        tlCtx.fillStyle = "rgba(255, 255, 255, 0.5)";
+                        tlCtx.font = "600 10px Inter";
+                        tlCtx.textAlign = "right";
+                        tlCtx.fillText(date.getFullYear(), timelineX - 14, y + 4);
+                    }
+                }
+            }
+
+            // 3. Draw Job Nodes & Connections
+            jobs.forEach(job => {
+                let diff = job.basePos - currentScroll;
+                let y = centerY + (diff * VERTICAL_SPREAD);
+                let isActive = Math.abs(diff) < 150;
+                
+                tlCtx.beginPath();
+                tlCtx.strokeStyle = isActive ? "rgba(56, 189, 248, 0.8)" : "rgba(56, 189, 248, 0.15)";
+                tlCtx.lineWidth = isActive ? 2 : 1;
+                tlCtx.moveTo(timelineX, y);
+                tlCtx.lineTo(cardLeftVisual, y);
+                tlCtx.stroke();
+                
+                tlCtx.beginPath();
+                tlCtx.arc(timelineX, y, isActive ? 6 : 4, 0, Math.PI*2);
+                tlCtx.fillStyle = isActive ? "#38bdf8" : "#090e17";
+                tlCtx.fill();
+                tlCtx.strokeStyle = isActive ? "#38bdf8" : "rgba(255,255,255,0.3)";
+                tlCtx.lineWidth = 2;
+                tlCtx.stroke();
+            });
+
+            requestAnimationFrame(renderArc);
+        }
+
+        viewport.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            targetScroll += e.deltaY * 0.8;
+            targetScroll = Math.max(-50, Math.min(targetScroll, maxScroll + 100)); 
+        }, { passive: false });
+
+        let isDragging = false, startY = 0, lastTargetScroll = 0;
+        viewport.addEventListener('pointerdown', (e) => {
+            isDragging = true; startY = e.clientY; lastTargetScroll = targetScroll;
+        });
+        window.addEventListener('pointermove', (e) => {
+            if (!isDragging) return;
+            targetScroll = lastTargetScroll + ((startY - e.clientY) * 2.5);
+            targetScroll = Math.max(-50, Math.min(targetScroll, maxScroll + 100));
+        });
+        window.addEventListener('pointerup', () => isDragging = false);
+
+        renderArc(); 
+
+        /* =========================================
+           2. MODAL LOGIC
+           ========================================= */
+        function openModal(job) {
+            document.getElementById('modal-company').innerText = job.company;
+            document.getElementById('modal-title').innerText = job.title;
+            const list = job.bullets.map(b => `<li>${b}</li>`).join('');
+            document.getElementById('modal-body').innerHTML = `<ul>${list}</ul>`;
+            document.getElementById('modal').classList.add('active');
+        }
+        function closeModal() { document.getElementById('modal').classList.remove('active'); }
+
+        /* =========================================
+           3. PUBLICATION STACK
+           ========================================= */
+        const stack = document.getElementById('pub-stack');
+        let pubClicks = 0;
+        const originalPapers = Array.from(stack.children); 
+
+        stack.addEventListener('click', function(e) {
+            if (stack.classList.contains('restacking')) return; 
+            
+            const topCard = stack.lastElementChild;
+            if (topCard && topCard.classList.contains('paper')) {
+                pubClicks++;
+                if (pubClicks >= originalPapers.length) {
+                    stack.classList.add('restacking');
+                    Array.from(stack.children).forEach((card) => {
+                        const rX = (Math.random() - 0.5) * 40;
+                        card.style.transform = `translateY(-150%) rotate(${rX}deg)`;
+                    });
+                    setTimeout(() => {
+                        stack.innerHTML = '';
+                        originalPapers.forEach(p => { p.style.transform = ''; stack.appendChild(p); });
+                        stack.classList.remove('restacking');
+                        pubClicks = 0;
+                    }, 600);
+                } else {
+                    topCard.classList.add('swipe-out');
+                    setTimeout(() => {
+                        topCard.classList.remove('swipe-out');
+                        stack.prepend(topCard); 
+                    }, 400); 
+                }
+            }
+        });
+
+        /* =========================================
+           4. SKILLS CONSTELLATION (Hierarchical)
+           ========================================= */
+        const skCanvas = document.getElementById('skills-canvas');
+        const skCtx = skCanvas.getContext('2d');
+        let skWidth, skHeight;
+        let clusters = [];
+        let mouse = { x: -1000, y: -1000 };
+
+        // Hierarchical Dataset based on Resume
+        const skillHierarchy = [
+            {
+                name: "Tech & Tools", rgb: "56, 189, 248",
+                nodes: [
+                    { id: "db", text: "Data Eng", level: 1 },
+                    { id: "s1", text: "Snowflake", level: 2, parent: "db" },
+                    { id: "s2", text: "Databricks", level: 2, parent: "db" },
+                    { id: "hris", text: "HRIS", level: 1 },
+                    { id: "s3", text: "Workday", level: 2, parent: "hris" },
+                    { id: "s4", text: "Greenhouse", level: 2, parent: "hris" },
+                    { id: "lang", text: "Languages", level: 1 },
+                    { id: "s5", text: "Python", level: 2, parent: "lang" },
+                    { id: "s6", text: "R", level: 2, parent: "lang" },
+                    { id: "s7", text: "SAS", level: 2, parent: "lang" },
+                    { id: "viz
