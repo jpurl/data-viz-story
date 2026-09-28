@@ -28,10 +28,9 @@
             background-color: var(--bg-dark);
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
-            overflow: hidden; /* App-like feel */
+            overflow: hidden; 
         }
 
-        /* Subtle grid background */
         body::before {
             content: '';
             position: absolute;
@@ -43,7 +42,6 @@
             z-index: -1;
         }
 
-        /* 2x2 GRID LAYOUT */
         .dashboard {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -101,6 +99,7 @@
         .profile-content p { font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); font-weight: 300; max-width: 90%; }
 
         /* --- QUADRANT 2: EXPERIENCE ARC --- */
+        #q-arc { position: relative; }
         .arc-viewport {
             flex: 1;
             perspective: 800px;
@@ -110,6 +109,7 @@
             position: relative;
             cursor: grab;
             touch-action: none;
+            z-index: 10;
         }
         .arc-viewport:active { cursor: grabbing; }
         .arc-scene {
@@ -120,10 +120,10 @@
         }
         .arc-card {
             position: absolute;
-            left: 50%;
+            left: 55%;
             top: 50%;
-            width: 85%;
-            max-width: 400px;
+            width: 75%;
+            max-width: 350px;
             background: rgba(15, 23, 42, 0.9);
             border: 1px solid var(--border);
             border-left: 4px solid var(--accent-blue);
@@ -131,14 +131,20 @@
             padding: 20px;
             cursor: pointer;
             box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-            /* Transform set by JS */
-            transform-origin: center center;
+            transform-origin: center left;
             transition: border-color 0.2s;
         }
         .arc-card:hover { border-left-color: var(--accent-purple); }
-        .arc-card h3 { margin: 0; font-size: 1.2rem; color: var(--text-main); }
-        .arc-card h4 { margin: 5px 0 10px 0; font-size: 0.9rem; color: var(--accent-blue); }
-        .arc-card .date { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+        .arc-card h3 { margin: 0; font-size: 1.1rem; color: var(--text-main); }
+        .arc-card h4 { margin: 5px 0 10px 0; font-size: 0.85rem; color: var(--accent-blue); }
+        .arc-card .date { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+
+        #timeline-canvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1; /* Behind cards, in front of background */
+        }
 
         /* --- QUADRANT 3: SKILLS CONSTELLATION --- */
         #skills-canvas {
@@ -186,6 +192,13 @@
             opacity: 0 !important;
             pointer-events: none;
         }
+        
+        /* The Restack Animation Classes */
+        .stack-viewport.restacking .paper {
+            transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.5s !important;
+            opacity: 0 !important;
+        }
+
         .paper h3 { margin: 0 0 8px 0; font-size: 1rem; font-weight: 800; }
         .paper p { margin: 0; font-size: 0.85rem; color: #475569; line-height: 1.4; }
         .paper-year { position: absolute; top: 10px; right: 15px; font-weight: 800; font-size: 0.8rem; color: var(--accent-blue); }
@@ -237,16 +250,11 @@
         #modal-body ul { padding-left: 20px; }
         #modal-body li { margin-bottom: 10px; }
 
-        /* --- MOBILE RESPONSIVENESS --- */
         @media (max-width: 1024px) {
-            .dashboard {
-                grid-template-columns: 1fr;
-                grid-template-rows: auto;
-                height: auto;
-                overflow-y: auto;
-            }
+            .dashboard { grid-template-columns: 1fr; grid-template-rows: auto; height: auto; overflow-y: auto; }
             body { overflow-y: auto; }
-            .quadrant { height: 450px; } /* Fixed height for each section so they stack nicely */
+            .quadrant { height: 450px; } 
+            .arc-card { left: 50%; }
         }
     </style>
 </head>
@@ -262,13 +270,12 @@
         </div>
     </div>
 
-    <!-- MAIN DASHBOARD (2x2 Grid) -->
+    <!-- MAIN DASHBOARD -->
     <div class="dashboard">
         
         <!-- Quadrant 1: Profile -->
         <div class="quadrant">
             <div class="profile-content">
-                <!-- IMPORTANT: Rename your uploaded image to 'profile.jpg' -->
                 <img src="profile.jpg" alt="Justin D. Purl" class="profile-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzNlNGE1YyIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1zaXplPSI1MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2ZmZiI+👨‍💻PC90ZXh0Pjwvc3ZnPg=='">
                 <h1>Justin D. Purl</h1>
                 <h2>Head of People Systems & Analytics @ Archer</h2>
@@ -280,8 +287,10 @@
         <div class="quadrant" id="q-arc">
             <div class="quad-title">
                 Experience Timeline
-                <span class="instruction">Scroll / Drag to traverse time</span>
+                <span class="instruction">Scroll / Drag to traverse</span>
             </div>
+            <!-- Canvas draws the line and years -->
+            <canvas id="timeline-canvas"></canvas>
             <div class="arc-viewport" id="arc-viewport">
                 <div class="arc-scene" id="arc-scene">
                     <!-- Populated by JS -->
@@ -293,7 +302,7 @@
         <div class="quadrant">
             <div class="quad-title">
                 Skills Ecosystem
-                <span class="instruction">Hover & Interact</span>
+                <span class="instruction">Hover to discover</span>
             </div>
             <canvas id="skills-canvas"></canvas>
             <div class="legend">
@@ -342,38 +351,38 @@
 
     <script>
         /* =========================================
-           1. EXPERIENCE ARC (TIME-BASED 3D ENGINE)
+           1. EXPERIENCE ARC (Dynamic distance + Timeline Line)
            ========================================= */
         const jobs = [
             { id: 0, company: "Archer", title: "Head of People Systems & Analytics", date: "Apr 2026 - Present", monthsPrior: 0, 
               bullets: ["Streamlined Workday and Greenhouse via interaction playbooks based on user journeys.", "Centralized workforce planning into a single dashboard aligning Finance, HRBP, and business leaders.", "Relaunched position management, comp planning, and recruiting templates."] },
-            { id: 1, company: "Gilead Sciences", title: "Assoc. Director of People Analytics", date: "Apr 2025 - Apr 2026", monthsPrior: 6, 
+            { id: 1, company: "Gilead Sciences", title: "Assoc. Director of People Analytics", date: "Apr 2025 - Apr 2026", monthsPrior: 12, 
               bullets: ["Managed 5-10 off-shore resources developing a custom agent to support an AI chatbot.", "Streamlined project management to increase delivery speed from 2 years to 3 months.", "Quantified the impact of compensation on employee retention and diagnosed drop-offs in underrepresented talent."] },
             { id: 2, company: "Zscaler", title: "Head of People Analytics & Insights", date: "Apr 2024 - Apr 2025", monthsPrior: 12, 
               bullets: ["Set strategy and vision for 7 analytics resources across the HR function.", "Designed and executed sentiment programs in partnership with the Culture team.", "Developed a forecast model of attrition with Finance and aggregated benchmark information to form effective DEI aspirations."] },
-            { id: 3, company: "TikTok", title: "Head of Global People Analytics", date: "Mar 2022 - Apr 2024", monthsPrior: 12, 
+            { id: 3, company: "TikTok", title: "Head of Global People Analytics", date: "Mar 2022 - Apr 2024", monthsPrior: 25, 
               bullets: ["Identified key leadership behaviors from Natural Language Processing of performance review text.", "Streamlined interview processes by quantifying the ROI across multiple interview stages.", "Forecasted headcount growth accounting for fluctuations in the labor market through a depressed macro economy."] },
-            { id: 4, company: "Google", title: "Senior People Analyst", date: "Aug 2019 - Mar 2022", monthsPrior: 25, 
+            { id: 4, company: "Google", title: "Senior People Analyst", date: "Aug 2019 - Mar 2022", monthsPrior: 31, 
               bullets: ["Lead Hiring Analyst: Developed advanced scoring methodologies globally to optimize validity and equity.", "Lead Innovation Analyst: Upgraded attrition modeling programs to incorporate survival analysis.", "Lead Productivity Analyst: Developed collaboration metrics to support evaluation of work-from-anywhere initiatives."] },
-            { id: 5, company: "HumRRO", title: "Research Scientist", date: "Sept 2015 - Aug 2019", monthsPrior: 31, 
+            { id: 5, company: "HumRRO", title: "Research Scientist", date: "Sept 2015 - Aug 2019", monthsPrior: 47, 
               bullets: ["Project Director: Led small teams on projects requiring complex analytic (NLP, Psychometrics) and programming experience.", "Innovation: Planned and executed development of an ontology of insider threat.", "Conducted psychometric analysis to support a large-scale educational testing program."] }
         ];
 
         const scene = document.getElementById('arc-scene');
         const viewport = document.getElementById('arc-viewport');
+        const tlCanvas = document.getElementById('timeline-canvas');
+        const tlCtx = tlCanvas.getContext('2d');
         
         // Physics variables
-        let currentScroll = 0;
-        let targetScroll = 0;
-        const SCROLL_MULTIPLIER = 12; // Controls how much distance a single month equals
+        let currentScroll = 0, targetScroll = 0;
+        const SCROLL_MULTIPLIER = 20; // 1 month = 20px of scroll space (makes long jobs feel long)
         let maxScroll = 0;
 
-        // Build the cards and calculate their exact physical distance based on time
         let cumulativeDistance = 0;
         jobs.forEach((job) => {
             cumulativeDistance += job.monthsPrior * SCROLL_MULTIPLIER;
             job.basePos = cumulativeDistance;
-            maxScroll = cumulativeDistance; // Max scroll stops at the oldest job
+            maxScroll = cumulativeDistance; 
 
             const el = document.createElement('div');
             el.className = 'arc-card';
@@ -387,22 +396,26 @@
             scene.appendChild(el);
         });
 
-        // The physics loop
-        function renderArc() {
-            // Easing for smooth scrolling/dragging
-            currentScroll += (targetScroll - currentScroll) * 0.1;
+        function resizeTlCanvas() {
+            tlCanvas.width = tlCanvas.parentElement.clientWidth;
+            tlCanvas.height = tlCanvas.parentElement.clientHeight;
+        }
+        window.addEventListener('resize', resizeTlCanvas);
+        resizeTlCanvas();
 
+        function renderArc() {
+            currentScroll += (targetScroll - currentScroll) * 0.1;
+            
+            // 1. Update 3D Cards
             jobs.forEach(job => {
                 const diff = job.basePos - currentScroll;
                 const absDiff = Math.abs(diff);
 
-                // Math to create a physical "Arc" going backwards into the screen
-                const yPos = diff * 0.8; // Vertical spread
-                const zPos = -absDiff * 0.6; // Pushes unselected cards deep into the background (conserves space)
-                const rx = diff * 0.25; // Tilts unselected cards so only top is flat/readable
+                const yPos = diff * 0.8; 
+                const zPos = -absDiff * 0.5; 
+                const rx = diff * 0.2; 
                 
-                // Fade out cards that are too far away
-                const opacity = Math.max(1 - (absDiff / 400), 0);
+                const opacity = Math.max(1 - (absDiff / 500), 0);
                 const pointer = opacity > 0.5 ? 'auto' : 'none';
 
                 job.element.style.transform = `translate(-50%, calc(-50% + ${yPos}px)) translateZ(${zPos}px) rotateX(${rx}deg)`;
@@ -410,36 +423,75 @@
                 job.element.style.pointerEvents = pointer;
             });
 
+            // 2. Draw Dynamic Canvas Timeline Line
+            tlCtx.clearRect(0, 0, tlCanvas.width, tlCanvas.height);
+            const parentRect = tlCanvas.getBoundingClientRect();
+            const points = [];
+
+            jobs.forEach(job => {
+                if (job.element.style.opacity > 0) {
+                    const rect = job.element.getBoundingClientRect();
+                    const x = rect.left - parentRect.left;
+                    const y = rect.top + (rect.height / 2) - parentRect.top;
+                    // Extract start year (e.g. "Apr 2024")
+                    const year = job.date.split('-')[0].trim().slice(-4);
+                    points.push({ x, y, year, opacity: job.element.style.opacity });
+                }
+            });
+
+            if (points.length > 0) {
+                // Draw connecting line
+                tlCtx.beginPath();
+                tlCtx.strokeStyle = "rgba(56, 189, 248, 0.4)";
+                tlCtx.lineWidth = 2;
+                tlCtx.moveTo(points[0].x - 30, points[0].y);
+                for(let i=1; i<points.length; i++) {
+                    tlCtx.lineTo(points[i].x - 30, points[i].y);
+                }
+                tlCtx.stroke();
+
+                // Draw Nodes & Years
+                points.forEach(p => {
+                    tlCtx.globalAlpha = p.opacity;
+                    
+                    // Node dot
+                    tlCtx.beginPath();
+                    tlCtx.arc(p.x - 30, p.y, 5, 0, Math.PI*2);
+                    tlCtx.fillStyle = "#0f172a";
+                    tlCtx.fill();
+                    tlCtx.strokeStyle = "#38bdf8";
+                    tlCtx.lineWidth = 2;
+                    tlCtx.stroke();
+                    
+                    // Year text
+                    tlCtx.fillStyle = "#f8fafc";
+                    tlCtx.font = "bold 11px Inter";
+                    tlCtx.fillText(p.year, p.x - 70, p.y + 4);
+                });
+                tlCtx.globalAlpha = 1.0;
+            }
+
             requestAnimationFrame(renderArc);
         }
 
-        // Input handling for the Arc
         viewport.addEventListener('wheel', (e) => {
             e.preventDefault();
             targetScroll += e.deltaY * 0.5;
             targetScroll = Math.max(0, Math.min(targetScroll, maxScroll));
         }, { passive: false });
 
-        let isDragging = false;
-        let startY = 0;
-        let lastTargetScroll = 0;
-
+        let isDragging = false, startY = 0, lastTargetScroll = 0;
         viewport.addEventListener('pointerdown', (e) => {
-            isDragging = true;
-            startY = e.clientY;
-            lastTargetScroll = targetScroll;
+            isDragging = true; startY = e.clientY; lastTargetScroll = targetScroll;
         });
-        
         window.addEventListener('pointermove', (e) => {
             if (!isDragging) return;
-            const deltaY = startY - e.clientY;
-            targetScroll = lastTargetScroll + (deltaY * 2);
+            targetScroll = lastTargetScroll + ((startY - e.clientY) * 2);
             targetScroll = Math.max(0, Math.min(targetScroll, maxScroll));
         });
-        
         window.addEventListener('pointerup', () => isDragging = false);
 
-        renderArc(); // Start loop
+        renderArc(); 
 
         /* =========================================
            2. MODAL LOGIC
@@ -451,32 +503,60 @@
             document.getElementById('modal-body').innerHTML = `<ul>${list}</ul>`;
             document.getElementById('modal').classList.add('active');
         }
-
-        function closeModal() {
-            document.getElementById('modal').classList.remove('active');
-        }
+        function closeModal() { document.getElementById('modal').classList.remove('active'); }
 
         /* =========================================
-           3. PUBLICATION STACK LOGIC
+           3. PUBLICATION STACK LOGIC (With Restack)
            ========================================= */
         const stack = document.getElementById('pub-stack');
+        let pubClicks = 0;
+        const originalPapers = Array.from(stack.children); // Store original order
+
         stack.addEventListener('click', function(e) {
+            if (stack.classList.contains('restacking')) return; // lock during animation
+            
             const topCard = stack.lastElementChild;
             if (topCard && topCard.classList.contains('paper')) {
-                topCard.classList.add('swipe-out');
-                setTimeout(() => {
-                    topCard.classList.remove('swipe-out');
-                    stack.prepend(topCard); 
-                }, 400); 
+                pubClicks++;
+
+                if (pubClicks >= originalPapers.length) {
+                    // Trigger Restack Animation
+                    stack.classList.add('restacking');
+                    Array.from(stack.children).forEach((card, idx) => {
+                        // Send them flying in random directions
+                        const rX = (Math.random() - 0.5) * 40;
+                        card.style.transform = `translateY(-150%) rotate(${rX}deg)`;
+                    });
+
+                    setTimeout(() => {
+                        // Reset DOM instantly while hidden
+                        stack.innerHTML = '';
+                        originalPapers.forEach(p => {
+                            p.style.transform = ''; 
+                            stack.appendChild(p);
+                        });
+                        // Remove class so they cascade back into normal view
+                        stack.classList.remove('restacking');
+                        pubClicks = 0;
+                    }, 600);
+
+                } else {
+                    // Normal Swipe
+                    topCard.classList.add('swipe-out');
+                    setTimeout(() => {
+                        topCard.classList.remove('swipe-out');
+                        stack.prepend(topCard); 
+                    }, 400); 
+                }
             }
         });
 
         /* =========================================
-           4. SKILLS CONSTELLATION LOGIC
+           4. SKILLS CONSTELLATION LOGIC (Fixed Orbits)
            ========================================= */
-        const canvas = document.getElementById('skills-canvas');
-        const ctx = canvas.getContext('2d');
-        let width, height;
+        const skCanvas = document.getElementById('skills-canvas');
+        const skCtx = skCanvas.getContext('2d');
+        let skWidth, skHeight;
         let nodes = [];
         let mouse = { x: -1000, y: -1000 };
 
@@ -492,72 +572,122 @@
         ];
 
         class Node {
-            constructor(data) {
+            constructor(data, tx, ty) {
                 this.text = data.text;
                 this.group = data.group;
                 this.color = data.color;
-                this.x = Math.random() * width; this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5); this.vy = (Math.random() - 0.5);
+                this.x = skWidth / 2; // Start from center
+                this.y = skHeight / 2;
+                this.targetX = tx; // Fixed target destination
+                this.targetY = ty;
             }
             update() {
-                // Determine gravity wells based on container size
-                const tx = this.group === 0 ? width * 0.3 : this.group === 1 ? width * 0.7 : width * 0.5;
-                const ty = this.group === 0 ? height * 0.3 : this.group === 1 ? height * 0.4 : height * 0.7;
-
-                this.vx += (tx - this.x) * 0.0008;
-                this.vy += (ty - this.y) * 0.0008;
-                this.vx *= 0.95; this.vy *= 0.95;
-
-                // Mouse repel
-                let dx = mouse.x - this.x, dy = mouse.y - this.y;
-                let dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist < 100) { this.vx -= (dx / dist) * 1; this.vy -= (dy / dist) * 1; }
-
-                this.x += this.vx; this.y += this.vy;
+                // Ease smoothly into fixed position
+                this.x += (this.targetX - this.x) * 0.04;
+                this.y += (this.targetY - this.y) * 0.04;
             }
             draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, 5, 0, Math.PI * 2);
-                ctx.fillStyle = this.color; ctx.fill();
-                ctx.fillStyle = "#cbd5e1"; ctx.font = "11px Inter";
-                ctx.fillText(this.text, this.x + 8, this.y + 4);
+                skCtx.beginPath();
+                skCtx.arc(this.x, this.y, 5, 0, Math.PI * 2);
+                skCtx.fillStyle = this.color; skCtx.fill();
             }
         }
 
-        function initCanvas() {
-            width = canvas.width = canvas.parentElement.clientWidth;
-            height = canvas.height = canvas.parentElement.clientHeight;
-            nodes = skillData.map(d => new Node(d));
+        function initSkCanvas() {
+            skWidth = skCanvas.width = skCanvas.parentElement.clientWidth;
+            skHeight = skCanvas.height = skCanvas.parentElement.clientHeight;
+            
+            // Organize into groups to calculate radial layouts
+            const groups = {0: [], 1: [], 2: []};
+            skillData.forEach(d => groups[d.group].push(d));
+            
+            nodes = [];
+            for (let g = 0; g < 3; g++) {
+                // Define center of each group
+                const cx = g === 0 ? skWidth*0.25 : g === 1 ? skWidth*0.75 : skWidth*0.5;
+                const cy = g === 0 ? skHeight*0.35 : g === 1 ? skHeight*0.35 : skHeight*0.75;
+                const radius = 60; // Orbit size
+                
+                groups[g].forEach((d, i) => {
+                    const angle = (i / groups[g].length) * Math.PI * 2;
+                    const tx = cx + Math.cos(angle) * radius;
+                    const ty = cy + Math.sin(angle) * radius;
+                    nodes.push(new Node(d, tx, ty));
+                });
+            }
         }
 
-        function animateCanvas() {
-            ctx.clearRect(0, 0, width, height);
+        function animateSkCanvas() {
+            skCtx.clearRect(0, 0, skWidth, skHeight);
+            
+            // Draw internal group connections
             for (let i = 0; i < nodes.length; i++) {
                 for (let j = i + 1; j < nodes.length; j++) {
                     if (nodes[i].group === nodes[j].group) {
-                        let dx = nodes[i].x - nodes[j].x, dy = nodes[i].y - nodes[j].y;
-                        let dist = Math.sqrt(dx*dx + dy*dy);
-                        if (dist < 120) {
-                            ctx.beginPath(); ctx.strokeStyle = nodes[i].color;
-                            ctx.globalAlpha = 1 - (dist / 120); ctx.lineWidth = 1;
-                            ctx.moveTo(nodes[i].x, nodes[i].y); ctx.lineTo(nodes[j].x, nodes[j].y);
-                            ctx.stroke(); ctx.globalAlpha = 1.0;
-                        }
+                        skCtx.beginPath(); skCtx.strokeStyle = nodes[i].color;
+                        skCtx.globalAlpha = 0.15; skCtx.lineWidth = 1;
+                        skCtx.moveTo(nodes[i].x, nodes[i].y); skCtx.lineTo(nodes[j].x, nodes[j].y);
+                        skCtx.stroke(); skCtx.globalAlpha = 1.0;
                     }
                 }
-                nodes[i].update(); nodes[i].draw();
+                nodes[i].update(); 
+                nodes[i].draw();
             }
-            requestAnimationFrame(animateCanvas);
+
+            // Mouse Interaction: Draw line and tooltip
+            let hoveredNode = null;
+            let minDist = Infinity;
+
+            nodes.forEach(n => {
+                let d = Math.hypot(mouse.x - n.x, mouse.y - n.y);
+                // Draw connecting line to mouse
+                if (d < 90) {
+                    skCtx.beginPath();
+                    skCtx.strokeStyle = n.color;
+                    skCtx.globalAlpha = 0.5;
+                    skCtx.moveTo(n.x, n.y);
+                    skCtx.lineTo(mouse.x, mouse.y);
+                    skCtx.stroke();
+                    skCtx.globalAlpha = 1;
+                }
+                // Find closest node for tooltip
+                if (d < 50 && d < minDist) {
+                    minDist = d;
+                    hoveredNode = n;
+                }
+            });
+
+            // Draw Tooltip
+            if (hoveredNode) {
+                skCtx.font = "600 12px Inter";
+                const textWidth = skCtx.measureText(hoveredNode.text).width + 20;
+                let tX = mouse.x + 15;
+                let tY = mouse.y - 25;
+                
+                // Keep tooltip on screen
+                if (tX + textWidth > skWidth) tX = mouse.x - textWidth - 10;
+                
+                skCtx.fillStyle = "rgba(15, 23, 42, 0.9)";
+                skCtx.strokeStyle = hoveredNode.color;
+                skCtx.lineWidth = 1;
+                skCtx.fillRect(tX, tY, textWidth, 26);
+                skCtx.strokeRect(tX, tY, textWidth, 26);
+                
+                skCtx.fillStyle = "#fff";
+                skCtx.fillText(hoveredNode.text, tX + 10, tY + 17);
+            }
+
+            requestAnimationFrame(animateSkCanvas);
         }
 
-        canvas.parentElement.addEventListener('mousemove', e => {
-            const r = canvas.getBoundingClientRect();
+        skCanvas.parentElement.addEventListener('mousemove', e => {
+            const r = skCanvas.getBoundingClientRect();
             mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top;
         });
-        canvas.parentElement.addEventListener('mouseout', () => { mouse.x = -1000; });
+        skCanvas.parentElement.addEventListener('mouseout', () => { mouse.x = -1000; });
         
-        window.addEventListener('resize', initCanvas);
-        initCanvas(); animateCanvas();
+        window.addEventListener('resize', initSkCanvas);
+        initSkCanvas(); animateSkCanvas();
 
     </script>
 </body>
