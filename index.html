@@ -12,9 +12,9 @@
             --bg-panel: rgba(20, 27, 41, 0.6);
             --border-light: rgba(255, 255, 255, 0.06);
             --text-main: #f8fafc;
-            --text-muted: #8b9bb4;
+            --text-muted: #5e7392; /* Darkened for non-focal contrast */
+            --text-active: #f8fafc;
             --accent-blue: #38bdf8;
-            --accent-blue-glow: rgba(56, 189, 248, 0.4);
             --accent-purple: #a78bfa;
             --accent-green: #34d399;
         }
@@ -31,29 +31,23 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* High-end ambient background gradient */
+        /* Ambient background */
         body::before {
-            content: '';
-            position: absolute;
+            content: ''; position: absolute;
             top: -50%; left: -50%; width: 200%; height: 200%;
             background: radial-gradient(circle at 50% 50%, rgba(30, 41, 59, 1) 0%, var(--bg-base) 60%);
             z-index: -2;
         }
-
-        /* Subtle noise texture for premium feel */
         body::after {
-            content: "";
-            position: absolute;
+            content: ""; position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
-            pointer-events: none;
-            z-index: -1;
+            pointer-events: none; z-index: -1;
         }
 
-        /* --- ASYMMETRICAL BENTO GRID --- */
         .dashboard {
             display: grid;
-            grid-template-columns: 1fr 1.6fr; /* Gives more width to experience/pubs */
+            grid-template-columns: 1fr 1.6fr; 
             grid-template-rows: 1fr 1fr;
             gap: 20px;
             width: 100%; height: 100%;
@@ -62,38 +56,23 @@
 
         .quadrant {
             background: var(--bg-panel);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
             border-radius: 24px;
             border: 1px solid var(--border-light);
             box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
             position: relative;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            padding: 30px;
+            display: flex; flex-direction: column;
+            overflow: hidden; padding: 30px;
         }
 
         .quad-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-main);
-            margin: 0 0 20px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 10;
+            font-size: 1.1rem; font-weight: 600; color: var(--text-main);
+            margin: 0 0 20px 0; display: flex; justify-content: space-between; align-items: center; z-index: 10;
         }
-        
         .instruction { 
-            font-size: 0.7rem; 
-            color: var(--text-muted); 
-            font-weight: 500; 
-            text-transform: uppercase; 
-            letter-spacing: 1.5px; 
-            background: rgba(255,255,255,0.05);
-            padding: 4px 10px;
-            border-radius: 20px;
+            font-size: 0.7rem; color: var(--text-muted); font-weight: 500; 
+            text-transform: uppercase; letter-spacing: 1.5px; 
+            background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 20px;
         }
 
         /* --- QUADRANT 1: PROFILE --- */
@@ -101,80 +80,81 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             height: 100%; text-align: center;
         }
-        .profile-img-container {
-            position: relative;
-            margin-bottom: 24px;
-        }
-        /* Animated glowing ring */
+        .profile-img-container { position: relative; margin-bottom: 24px; }
         .profile-img-container::before {
-            content: ''; position: absolute;
-            top: -5px; left: -5px; right: -5px; bottom: -5px;
+            content: ''; position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px;
             background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-            border-radius: 50%;
-            z-index: -1;
-            filter: blur(15px);
-            opacity: 0.6;
+            border-radius: 50%; z-index: -1; filter: blur(15px); opacity: 0.6;
             animation: pulse 4s ease-in-out infinite alternate;
         }
         @keyframes pulse { 0% { opacity: 0.4; transform: scale(0.95); } 100% { opacity: 0.8; transform: scale(1.05); } }
         
         .profile-img {
-            width: 140px; height: 140px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid rgba(255,255,255,0.1);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            width: 140px; height: 140px; border-radius: 50%; object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.1); box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
         .profile-content h1 { margin: 0; font-size: 2.2rem; font-weight: 800; letter-spacing: -0.5px; }
         .profile-content h2 { margin: 8px 0 20px 0; font-size: 1.05rem; color: var(--accent-blue); font-weight: 500; }
-        .profile-content p { font-size: 0.95rem; line-height: 1.7; color: var(--text-muted); font-weight: 400; max-width: 90%; }
+        .profile-content p { font-size: 0.95rem; line-height: 1.7; color: #8b9bb4; font-weight: 400; max-width: 90%; }
 
-        /* --- QUADRANT 2: EXPERIENCE CASCADE --- */
-        #q-arc { padding-right: 0; /* Let cards bleed off right side slightly */ }
-        .arc-viewport {
-            flex: 1; position: relative;
-            display: flex; align-items: center; justify-content: flex-start;
-            padding-left: 20%; /* Offset timeline from the left */
-            cursor: grab; touch-action: none; z-index: 10;
-        }
-        .arc-viewport:active { cursor: grabbing; }
-        .arc-scene {
-            position: absolute; width: 100%; height: 100%;
+        /* --- QUADRANT 2: EXPERIENCE TIMELINE --- */
+        #q-arc { padding: 0; }
+        .quad-title-overlay {
+            position: absolute; top: 30px; left: 30px; right: 30px; z-index: 20;
         }
         
-        .arc-card {
-            position: absolute;
-            left: 0; top: 50%;
-            width: 420px;
-            background: rgba(15, 20, 30, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--border-light);
-            border-left: 3px solid var(--accent-blue);
-            border-radius: 16px;
-            padding: 24px;
-            cursor: pointer;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            transform-origin: center left;
-            transition: border-color 0.3s, background 0.3s;
-            will-change: transform, opacity;
+        .arc-viewport {
+            flex: 1; position: relative; width: 100%; height: 100%;
+            cursor: grab; touch-action: none; z-index: 10; overflow: hidden;
         }
-        .arc-card:hover { 
-            border-left-color: var(--accent-purple); 
-            background: rgba(20, 27, 41, 0.9);
-        }
-        .arc-card h3 { margin: 0; font-size: 1.2rem; color: var(--text-main); font-weight: 600; }
-        .arc-card h4 { margin: 6px 0 12px 0; font-size: 0.9rem; color: var(--text-muted); font-weight: 400; }
-        .arc-card .date { 
-            position: absolute; top: 24px; right: 24px;
-            font-size: 0.75rem; color: var(--accent-blue); font-weight: 600; 
-        }
-
+        .arc-viewport:active { cursor: grabbing; }
+        
         #timeline-canvas {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 1;
         }
+        
+        /* The Cards */
+        .arc-scene { position: absolute; width: 100%; height: 100%; transform-style: preserve-3d; }
+        
+        .arc-card {
+            position: absolute;
+            left: clamp(100px, 15vw, 160px); /* Responsive placement from the left */
+            top: 50%;
+            width: 80%; max-width: 450px;
+            background: rgba(15, 20, 30, 0.4);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.03);
+            border-left: 3px solid rgba(56, 189, 248, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transform-origin: center left;
+            transition: all 0.3s ease;
+            will-change: transform, opacity, filter;
+            filter: grayscale(80%) brightness(0.6); /* Non-focal state */
+        }
+        .arc-card h3 { margin: 0; font-size: 1.2rem; color: var(--text-muted); font-weight: 600; transition: color 0.3s; }
+        .arc-card h4 { margin: 6px 0 12px 0; font-size: 0.9rem; color: var(--text-muted); font-weight: 400; }
+        .arc-card .date { 
+            position: absolute; top: 24px; right: 24px;
+            font-size: 0.75rem; color: var(--text-muted); font-weight: 600; transition: color 0.3s;
+        }
 
-        /* --- QUADRANT 3: SKILLS CONSTELLATION --- */
+        /* The Focal (Active) State */
+        .arc-card.active {
+            background: rgba(20, 27, 41, 0.95);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-left: 4px solid var(--accent-blue);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), -10px 0 20px rgba(56, 189, 248, 0.1);
+            filter: grayscale(0%) brightness(1);
+        }
+        .arc-card.active h3 { color: var(--text-active); }
+        .arc-card.active .date { color: var(--accent-blue); }
+        .arc-card.active h4 { color: #8b9bb4; }
+
+        /* --- QUADRANT 3: SKILLS --- */
         #skills-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
         .legend {
             position: absolute; bottom: 25px; left: 25px;
@@ -184,25 +164,15 @@
         .legend-item { display: flex; align-items: center; gap: 6px; }
         .dot { width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
 
-        /* --- QUADRANT 4: PUBLICATIONS STACK --- */
-        .stack-viewport {
-            flex: 1; position: relative;
-            display: flex; justify-content: center; align-items: center;
-        }
+        /* --- QUADRANT 4: PUBLICATIONS --- */
+        .stack-viewport { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; }
         .paper {
-            position: absolute;
-            width: 85%; max-width: 550px;
-            background: rgba(20, 27, 41, 0.8);
-            backdrop-filter: blur(12px);
-            color: var(--text-main);
-            padding: 30px;
-            border-radius: 16px;
-            border: 1px solid var(--border-light);
-            border-top: 2px solid var(--accent-blue);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-            cursor: pointer;
-            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-            user-select: none;
+            position: absolute; width: 85%; max-width: 550px;
+            background: rgba(20, 27, 41, 0.8); backdrop-filter: blur(12px);
+            color: var(--text-main); padding: 30px; border-radius: 16px;
+            border: 1px solid var(--border-light); border-top: 2px solid var(--accent-blue);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6); cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); user-select: none;
         }
         
         .paper:nth-last-child(1) { transform: translateY(0) scale(1); opacity: 1; z-index: 10; }
@@ -210,70 +180,52 @@
         .paper:nth-last-child(3) { transform: translateY(40px) scale(0.9); opacity: 0.4; z-index: 8; border-top-color: var(--accent-green); }
         .paper:nth-last-child(n+4) { transform: translateY(60px) scale(0.85); opacity: 0; z-index: 7; pointer-events: none; }
         
-        .paper.swipe-out {
-            transform: translateX(100%) translateY(-50px) rotate(10deg) scale(1) !important;
-            opacity: 0 !important; pointer-events: none;
-        }
+        .paper.swipe-out { transform: translateX(100%) translateY(-50px) rotate(10deg) scale(1) !important; opacity: 0 !important; pointer-events: none; }
         
         .stack-viewport.restacking .paper {
-            transition: transform 0.6s cubic-bezier(0.6, -0.28, 0.735, 0.045), opacity 0.4s !important;
+            transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.4s !important;
             opacity: 0 !important;
         }
 
         .paper h3 { margin: 0 0 10px 0; font-size: 1.1rem; font-weight: 600; line-height: 1.4; }
-        .paper p { margin: 0; font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; }
+        .paper p { margin: 0; font-size: 0.9rem; color: #8b9bb4; line-height: 1.5; }
         .paper-year { 
-            display: inline-block; margin-bottom: 12px;
-            font-size: 0.75rem; font-weight: 600; color: var(--accent-blue);
+            display: inline-block; margin-bottom: 12px; font-size: 0.75rem; font-weight: 600; color: var(--accent-blue);
             background: rgba(56, 189, 248, 0.1); padding: 4px 10px; border-radius: 12px;
         }
 
-        /* --- HIGH-END MODAL --- */
+        /* --- MODAL --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(9, 14, 23, 0.8);
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            z-index: 9999;
-            display: flex; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none;
-            transition: opacity 0.4s ease;
+            background: rgba(9, 14, 23, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            z-index: 9999; display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
         }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        
         .modal-content {
-            background: rgba(20, 27, 41, 0.95);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-top: 3px solid var(--accent-blue);
-            border-radius: 20px;
-            width: 90%; max-width: 650px;
-            padding: 40px; position: relative;
-            transform: translateY(20px) scale(0.98);
-            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            background: rgba(20, 27, 41, 0.95); border: 1px solid rgba(255,255,255,0.1); border-top: 3px solid var(--accent-blue);
+            border-radius: 20px; width: 90%; max-width: 650px; padding: 40px; position: relative;
+            transform: translateY(20px) scale(0.98); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
             box-shadow: 0 30px 60px rgba(0,0,0,0.7);
         }
         .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
-        
         .close-btn {
-            position: absolute; top: 20px; right: 24px;
-            background: none; border: none; color: var(--text-muted);
+            position: absolute; top: 20px; right: 24px; background: none; border: none; color: #8b9bb4;
             font-size: 2rem; cursor: pointer; transition: color 0.2s;
         }
         .close-btn:hover { color: var(--text-main); }
-        
         #modal-company { margin: 0; font-size: 1.8rem; font-weight: 800; color: var(--text-main); }
         #modal-title { margin: 8px 0 24px 0; font-size: 1.1rem; color: var(--accent-blue); font-weight: 500; }
-        #modal-body { font-size: 0.95rem; line-height: 1.7; color: var(--text-muted); }
+        #modal-body { font-size: 0.95rem; line-height: 1.7; color: #8b9bb4; }
         #modal-body ul { padding-left: 20px; margin: 0; }
         #modal-body li { margin-bottom: 12px; }
         #modal-body li::marker { color: var(--accent-blue); }
 
-        /* --- MOBILE RESPONSIVENESS --- */
         @media (max-width: 1024px) {
             .dashboard { grid-template-columns: 1fr; grid-template-rows: auto; height: auto; overflow-y: auto; padding: 15px; }
             body { overflow-y: auto; }
             .quadrant { height: 500px; padding: 20px; } 
-            .arc-viewport { padding-left: 15%; }
-            .arc-card { width: 80%; }
+            .arc-card { left: 90px; width: 70%; }
         }
     </style>
 </head>
@@ -303,13 +255,15 @@
             </div>
         </div>
 
-        <!-- Experience Cascade Timeline -->
+        <!-- Experience Timeline -->
         <div class="quadrant" id="q-arc">
-            <div class="quad-title">
+            <div class="quad-title quad-title-overlay">
                 Experience Timeline
                 <span class="instruction">Scroll / Drag</span>
             </div>
+            
             <canvas id="timeline-canvas"></canvas>
+            
             <div class="arc-viewport" id="arc-viewport">
                 <div class="arc-scene" id="arc-scene"></div>
             </div>
@@ -333,7 +287,7 @@
         <div class="quadrant">
             <div class="quad-title">
                 Select Publications
-                <span class="instruction">Tap top card</span>
+                <span class="instruction">Tap top card to cycle</span>
             </div>
             <div class="stack-viewport" id="pub-stack">
                 <div class="paper">
@@ -368,20 +322,21 @@
 
     <script>
         /* =========================================
-           1. EXPERIENCE CASCADE (Legible 3D Depth)
+           1. EXPERIENCE TIMELINE ENGINE
            ========================================= */
         const jobs = [
-            { id: 0, company: "Archer", title: "Head of People Systems & Analytics", date: "Apr 2026 - Present", monthsPrior: 0, 
+            // "monthsAgo" represents exact mathematical distance from Sept 2026 (Month 0)
+            { id: 0, company: "Archer", title: "Head of People Systems & Analytics", date: "Apr 2026 - Present", monthsAgo: 5, 
               bullets: ["Streamlined Workday and Greenhouse via interaction playbooks based on user journeys.", "Centralized workforce planning into a single dashboard aligning Finance, HRBP, and business leaders.", "Relaunched position management, comp planning, and recruiting templates."] },
-            { id: 1, company: "Gilead Sciences", title: "Assoc. Director of People Analytics", date: "Apr 2025 - Apr 2026", monthsPrior: 12, 
+            { id: 1, company: "Gilead Sciences", title: "Assoc. Director of People Analytics", date: "Apr 2025 - Apr 2026", monthsAgo: 17, 
               bullets: ["Managed 5-10 off-shore resources developing a custom agent to support an AI chatbot.", "Streamlined project management to increase delivery speed from 2 years to 3 months.", "Quantified the impact of compensation on employee retention and diagnosed drop-offs in underrepresented talent."] },
-            { id: 2, company: "Zscaler", title: "Head of People Analytics & Insights", date: "Apr 2024 - Apr 2025", monthsPrior: 12, 
+            { id: 2, company: "Zscaler", title: "Head of People Analytics & Insights", date: "Apr 2024 - Apr 2025", monthsAgo: 29, 
               bullets: ["Set strategy and vision for 7 analytics resources across the HR function.", "Designed and executed sentiment programs in partnership with the Culture team.", "Developed a forecast model of attrition with Finance and aggregated benchmark information to form effective DEI aspirations."] },
-            { id: 3, company: "TikTok", title: "Head of Global People Analytics", date: "Mar 2022 - Apr 2024", monthsPrior: 25, 
+            { id: 3, company: "TikTok", title: "Head of Global People Analytics", date: "Mar 2022 - Apr 2024", monthsAgo: 54, 
               bullets: ["Identified key leadership behaviors from Natural Language Processing of performance review text.", "Streamlined interview processes by quantifying the ROI across multiple interview stages.", "Forecasted headcount growth accounting for fluctuations in the labor market through a depressed macro economy."] },
-            { id: 4, company: "Google", title: "Senior People Analyst", date: "Aug 2019 - Mar 2022", monthsPrior: 31, 
+            { id: 4, company: "Google", title: "Senior People Analyst", date: "Aug 2019 - Mar 2022", monthsAgo: 85, 
               bullets: ["Lead Hiring Analyst: Developed advanced scoring methodologies globally to optimize validity and equity.", "Lead Innovation Analyst: Upgraded attrition modeling programs to incorporate survival analysis.", "Lead Productivity Analyst: Developed collaboration metrics to support evaluation of work-from-anywhere initiatives."] },
-            { id: 5, company: "HumRRO", title: "Research Scientist", date: "Sept 2015 - Aug 2019", monthsPrior: 47, 
+            { id: 5, company: "HumRRO", title: "Research Scientist", date: "Sept 2015 - Aug 2019", monthsAgo: 132, 
               bullets: ["Project Director: Led small teams on projects requiring complex analytic (NLP, Psychometrics) and programming experience.", "Innovation: Planned and executed development of an ontology of insider threat.", "Conducted psychometric analysis to support a large-scale educational testing program."] }
         ];
 
@@ -391,303 +346,10 @@
         const tlCtx = tlCanvas.getContext('2d');
         
         let currentScroll = 0, targetScroll = 0;
-        const SCROLL_MULTIPLIER = 18; 
-        let maxScroll = 0;
+        const SCROLL_MULTIPLIER = 25; // How many pixels of scroll space 1 month equals
+        const VERTICAL_SPREAD = 0.85; // How far apart cards render vertically
+        const maxScroll = 132 * SCROLL_MULTIPLIER; // Limit scroll to earliest job
 
-        let cumulativeDistance = 0;
+        // Initialize cards in DOM
         jobs.forEach((job) => {
-            cumulativeDistance += job.monthsPrior * SCROLL_MULTIPLIER;
-            job.basePos = cumulativeDistance;
-            maxScroll = cumulativeDistance; 
-
-            const el = document.createElement('div');
-            el.className = 'arc-card';
-            el.innerHTML = `
-                <div class="date">${job.date}</div>
-                <h3>${job.company}</h3>
-                <h4>${job.title}</h4>
-            `;
-            el.onclick = () => openModal(job);
-            job.element = el;
-            scene.appendChild(el);
-        });
-
-        function resizeTlCanvas() {
-            tlCanvas.width = tlCanvas.parentElement.clientWidth;
-            tlCanvas.height = tlCanvas.parentElement.clientHeight;
-        }
-        window.addEventListener('resize', resizeTlCanvas);
-        resizeTlCanvas();
-
-        function renderArc() {
-            currentScroll += (targetScroll - currentScroll) * 0.08; // Smooth easing
-            
-            jobs.forEach(job => {
-                const diff = job.basePos - currentScroll;
-                const absDiff = Math.abs(diff);
-
-                // Replaced extreme rotateX with smooth vertical scaling cascade
-                const yPos = diff * 0.65; 
-                const scale = Math.max(1 - (absDiff / 1000), 0.7); 
-                const opacity = Math.max(1 - (absDiff / 500), 0.1);
-                
-                // Stack active card on top
-                const zIndex = Math.round(1000 - absDiff);
-                const pointer = opacity > 0.4 ? 'auto' : 'none';
-
-                job.element.style.transform = `translate(0, calc(-50% + ${yPos}px)) scale(${scale})`;
-                job.element.style.opacity = opacity;
-                job.element.style.zIndex = zIndex;
-                job.element.style.pointerEvents = pointer;
-            });
-
-            // Draw Clean Canvas Timeline Line
-            tlCtx.clearRect(0, 0, tlCanvas.width, tlCanvas.height);
-            const parentRect = tlCanvas.getBoundingClientRect();
-            const points = [];
-
-            jobs.forEach(job => {
-                if (job.element.style.opacity > 0.1) {
-                    const rect = job.element.getBoundingClientRect();
-                    const x = rect.left - parentRect.left;
-                    const y = rect.top + (rect.height / 2) - parentRect.top;
-                    const year = job.date.split('-')[0].trim().slice(-4);
-                    points.push({ x, y, year, opacity: job.element.style.opacity });
-                }
-            });
-
-            if (points.length > 0) {
-                // Line
-                tlCtx.beginPath();
-                tlCtx.strokeStyle = "rgba(56, 189, 248, 0.3)";
-                tlCtx.lineWidth = 1.5;
-                tlCtx.moveTo(points[0].x - 40, points[0].y);
-                for(let i=1; i<points.length; i++) tlCtx.lineTo(points[i].x - 40, points[i].y);
-                tlCtx.stroke();
-
-                // Nodes & Text
-                points.forEach(p => {
-                    tlCtx.globalAlpha = p.opacity;
-                    tlCtx.beginPath();
-                    tlCtx.arc(p.x - 40, p.y, 4, 0, Math.PI*2);
-                    tlCtx.fillStyle = "#38bdf8";
-                    tlCtx.fill();
-                    
-                    tlCtx.fillStyle = "#8b9bb4";
-                    tlCtx.font = "500 11px Inter";
-                    tlCtx.fillText(p.year, p.x - 80, p.y + 4);
-                });
-                tlCtx.globalAlpha = 1.0;
-            }
-
-            requestAnimationFrame(renderArc);
-        }
-
-        viewport.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            targetScroll += e.deltaY * 0.6;
-            targetScroll = Math.max(0, Math.min(targetScroll, maxScroll));
-        }, { passive: false });
-
-        let isDragging = false, startY = 0, lastTargetScroll = 0;
-        viewport.addEventListener('pointerdown', (e) => {
-            isDragging = true; startY = e.clientY; lastTargetScroll = targetScroll;
-        });
-        window.addEventListener('pointermove', (e) => {
-            if (!isDragging) return;
-            targetScroll = lastTargetScroll + ((startY - e.clientY) * 2);
-            targetScroll = Math.max(0, Math.min(targetScroll, maxScroll));
-        });
-        window.addEventListener('pointerup', () => isDragging = false);
-
-        renderArc(); 
-
-        /* =========================================
-           2. MODAL LOGIC
-           ========================================= */
-        function openModal(job) {
-            document.getElementById('modal-company').innerText = job.company;
-            document.getElementById('modal-title').innerText = job.title;
-            const list = job.bullets.map(b => `<li>${b}</li>`).join('');
-            document.getElementById('modal-body').innerHTML = `<ul>${list}</ul>`;
-            document.getElementById('modal').classList.add('active');
-        }
-        function closeModal() { document.getElementById('modal').classList.remove('active'); }
-
-        /* =========================================
-           3. PUBLICATION STACK (Premium Dark Mode)
-           ========================================= */
-        const stack = document.getElementById('pub-stack');
-        let pubClicks = 0;
-        const originalPapers = Array.from(stack.children); 
-
-        stack.addEventListener('click', function(e) {
-            if (stack.classList.contains('restacking')) return; 
-            
-            const topCard = stack.lastElementChild;
-            if (topCard && topCard.classList.contains('paper')) {
-                pubClicks++;
-
-                if (pubClicks >= originalPapers.length) {
-                    stack.classList.add('restacking');
-                    Array.from(stack.children).forEach((card) => {
-                        const rX = (Math.random() - 0.5) * 30;
-                        card.style.transform = `translateY(-150%) rotate(${rX}deg)`;
-                    });
-
-                    setTimeout(() => {
-                        stack.innerHTML = '';
-                        originalPapers.forEach(p => { p.style.transform = ''; stack.appendChild(p); });
-                        stack.classList.remove('restacking');
-                        pubClicks = 0;
-                    }, 600);
-                } else {
-                    topCard.classList.add('swipe-out');
-                    setTimeout(() => {
-                        topCard.classList.remove('swipe-out');
-                        stack.prepend(topCard); 
-                    }, 400); 
-                }
-            }
-        });
-
-        /* =========================================
-           4. SKILLS CONSTELLATION (Organic Orbits)
-           ========================================= */
-        const skCanvas = document.getElementById('skills-canvas');
-        const skCtx = skCanvas.getContext('2d');
-        let skWidth, skHeight;
-        let nodes = [];
-        let mouse = { x: -1000, y: -1000 };
-
-        const skillData = [
-            { text: "R", group: 0, color: "#38bdf8" }, { text: "Python", group: 0, color: "#38bdf8" },
-            { text: "SAS", group: 0, color: "#38bdf8" }, { text: "Databricks", group: 0, color: "#38bdf8" },
-            { text: "Snowflake", group: 0, color: "#38bdf8" }, { text: "Workday", group: 0, color: "#38bdf8" },
-            { text: "Psychometrics", group: 1, color: "#a78bfa" }, { text: "IRT", group: 1, color: "#a78bfa" },
-            { text: "Bayesian Models", group: 1, color: "#a78bfa" }, { text: "Survival Analysis", group: 1, color: "#a78bfa" },
-            { text: "Meta-analysis", group: 1, color: "#a78bfa" },
-            { text: "People Analytics", group: 2, color: "#34d399" }, { text: "AI Prompt Eng", group: 2, color: "#34d399" },
-            { text: "Turnover", group: 2, color: "#34d399" }, { text: "Comp Modeling", group: 2, color: "#34d399" }
-        ];
-
-        class Node {
-            constructor(data, cx, cy, angle, radius) {
-                this.text = data.text;
-                this.color = data.color;
-                this.group = data.group;
-                this.cx = cx; this.cy = cy;
-                this.angle = angle;
-                this.radius = radius;
-                this.x = cx; this.y = cy;
-            }
-            update() {
-                this.angle += 0.0015; // Slow organic rotation
-                this.x = this.cx + Math.cos(this.angle) * this.radius;
-                this.y = this.cy + Math.sin(this.angle) * this.radius;
-            }
-            draw() {
-                skCtx.beginPath();
-                skCtx.arc(this.x, this.y, 4, 0, Math.PI * 2);
-                skCtx.fillStyle = this.color;
-                skCtx.shadowColor = this.color;
-                skCtx.shadowBlur = 8;
-                skCtx.fill();
-                skCtx.shadowBlur = 0; // reset for lines
-            }
-        }
-
-        function initSkCanvas() {
-            skWidth = skCanvas.width = skCanvas.parentElement.clientWidth;
-            skHeight = skCanvas.height = skCanvas.parentElement.clientHeight;
-            
-            const groups = {0: [], 1: [], 2: []};
-            skillData.forEach(d => groups[d.group].push(d));
-            
-            nodes = [];
-            for (let g = 0; g < 3; g++) {
-                const cx = g === 0 ? skWidth*0.2 : g === 1 ? skWidth*0.8 : skWidth*0.5;
-                const cy = g === 0 ? skHeight*0.35 : g === 1 ? skHeight*0.35 : skHeight*0.7;
-                
-                groups[g].forEach((d, i) => {
-                    const angle = (i / groups[g].length) * Math.PI * 2;
-                    // Vary radius slightly so it's not a perfect polygon
-                    const r = 55 + (Math.random() * 20 - 10); 
-                    nodes.push(new Node(d, cx, cy, angle, r));
-                });
-            }
-        }
-
-        function animateSkCanvas() {
-            skCtx.clearRect(0, 0, skWidth, skHeight);
-            
-            // Draw faint web connections within groups
-            for (let i = 0; i < nodes.length; i++) {
-                for (let j = i + 1; j < nodes.length; j++) {
-                    if (nodes[i].group === nodes[j].group) {
-                        skCtx.beginPath(); skCtx.strokeStyle = nodes[i].color;
-                        skCtx.globalAlpha = 0.1; skCtx.lineWidth = 1;
-                        skCtx.moveTo(nodes[i].x, nodes[i].y); skCtx.lineTo(nodes[j].x, nodes[j].y);
-                        skCtx.stroke(); skCtx.globalAlpha = 1.0;
-                    }
-                }
-                nodes[i].update(); 
-                nodes[i].draw();
-            }
-
-            // Mouse Hover Connections
-            let hoveredNode = null;
-            let minDist = Infinity;
-
-            nodes.forEach(n => {
-                let d = Math.hypot(mouse.x - n.x, mouse.y - n.y);
-                if (d < 100) {
-                    skCtx.beginPath();
-                    skCtx.strokeStyle = n.color;
-                    skCtx.globalAlpha = 1 - (d/100);
-                    skCtx.moveTo(n.x, n.y);
-                    skCtx.lineTo(mouse.x, mouse.y);
-                    skCtx.stroke();
-                    skCtx.globalAlpha = 1;
-                }
-                if (d < 50 && d < minDist) { minDist = d; hoveredNode = n; }
-            });
-
-            // Tooltip UI
-            if (hoveredNode) {
-                skCtx.font = "500 12px Inter";
-                const textWidth = skCtx.measureText(hoveredNode.text).width + 24;
-                let tX = mouse.x + 15;
-                let tY = mouse.y - 15;
-                
-                if (tX + textWidth > skWidth) tX = mouse.x - textWidth - 15;
-                
-                // Tooltip Glass Box
-                skCtx.fillStyle = "rgba(20, 27, 41, 0.95)";
-                skCtx.strokeStyle = hoveredNode.color;
-                skCtx.lineWidth = 1;
-                
-                // Draw rounded rect (simplified fallback for canvas)
-                skCtx.beginPath();
-                skCtx.roundRect ? skCtx.roundRect(tX, tY - 14, textWidth, 28, 6) : skCtx.rect(tX, tY - 14, textWidth, 28);
-                skCtx.fill(); skCtx.stroke();
-                
-                skCtx.fillStyle = "#f8fafc";
-                skCtx.fillText(hoveredNode.text, tX + 12, tY + 4);
-            }
-
-            requestAnimationFrame(animateSkCanvas);
-        }
-
-        skCanvas.parentElement.addEventListener('mousemove', e => {
-            const r = skCanvas.getBoundingClientRect();
-            mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top;
-        });
-        skCanvas.parentElement.addEventListener('mouseout', () => { mouse.x = -1000; });
-        
-        window.addEventListener('resize', initSkCanvas);
-        initSkCanvas(); animateSkCanvas();
-
-    </script>
-</body>
-</html>
+            job.basePos = job.monthsAgo * SCROLL_MULTIPLIER;
