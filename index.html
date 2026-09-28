@@ -2,179 +2,202 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Justin D. Purl | Interactive Portfolio</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
         :root {
-            --bg-base: #090e17;
-            --bg-panel: rgba(20, 27, 41, 0.6);
-            --border-light: rgba(255, 255, 255, 0.06);
+            --bg-base: #0a0f18;
+            --bg-surface: rgba(20, 28, 43, 0.6);
+            --border-subtle: rgba(255, 255, 255, 0.08);
             --text-main: #f8fafc;
-            --text-muted: #5e7392; 
-            --text-active: #f8fafc;
+            --text-muted: #8b9bb4; 
             --accent-blue: #38bdf8;
             --accent-purple: #a78bfa;
             --accent-green: #34d399;
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; scroll-behavior: smooth; }
 
         body, html {
             margin: 0; padding: 0;
-            width: 100vw; height: 100vh;
             background-color: var(--bg-base);
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
-            overflow: hidden; 
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
         }
 
-        /* Ambient background */
+        /* Ambient Background */
         body::before {
-            content: ''; position: absolute;
-            top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle at 50% 50%, rgba(30, 41, 59, 1) 0%, var(--bg-base) 60%);
+            content: ''; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(circle at 70% 30%, rgba(30, 41, 59, 0.8) 0%, var(--bg-base) 70%);
             z-index: -2;
         }
-        
-        /* Subtle noise texture */
         body::after {
-            content: ""; position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
+            content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.025'/%3E%3C/svg%3E");
             pointer-events: none; z-index: -1;
         }
 
-        .dashboard {
-            display: grid;
-            grid-template-columns: 1fr 1.6fr; 
-            grid-template-rows: 1fr 1fr;
-            gap: 20px;
-            width: 100%; height: 100%;
-            padding: 20px;
+        /* --- SPLIT SCREEN ARCHITECTURE --- */
+        .layout {
+            display: flex;
+            flex-direction: row;
+            min-height: 100vh;
+            max-width: 1600px;
+            margin: 0 auto;
         }
 
-        .quadrant {
-            background: var(--bg-panel);
-            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-            border-radius: 24px;
-            border: 1px solid var(--border-light);
-            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+        /* LEFT: STICKY PROFILE */
+        .left-pane {
+            flex: 0 0 40%;
+            max-width: 500px;
+            padding: 40px;
             position: relative;
-            display: flex; flex-direction: column;
-            overflow: hidden; padding: 30px;
-        }
-
-        .quad-title {
-            font-size: 1.1rem; font-weight: 600; color: var(--text-main);
-            margin: 0 0 20px 0; display: flex; justify-content: space-between; align-items: center; z-index: 10;
         }
         
-        .instruction { 
-            font-size: 0.7rem; color: var(--text-muted); font-weight: 500; 
-            text-transform: uppercase; letter-spacing: 1.5px; 
-            background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 20px;
+        .sticky-wrapper {
+            position: sticky;
+            top: 40px;
+            height: calc(100vh - 80px);
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 24px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
 
-        /* --- QUADRANT 1: PROFILE --- */
-        .profile-content {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 100%; text-align: center;
-        }
-        .profile-img-container { position: relative; margin-bottom: 24px; }
+        .profile-img-container { position: relative; width: 150px; height: 150px; margin-bottom: 30px; }
         .profile-img-container::before {
-            content: ''; position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px;
+            content: ''; position: absolute; top: -4px; left: -4px; right: -4px; bottom: -4px;
             background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-            border-radius: 50%; z-index: -1; filter: blur(15px); opacity: 0.6;
+            border-radius: 50%; z-index: -1; filter: blur(12px); opacity: 0.7;
             animation: pulse 4s ease-in-out infinite alternate;
         }
-        @keyframes pulse { 0% { opacity: 0.4; transform: scale(0.95); } 100% { opacity: 0.8; transform: scale(1.05); } }
+        @keyframes pulse { 0% { opacity: 0.5; transform: scale(0.95); } 100% { opacity: 0.9; transform: scale(1.02); } }
         
         .profile-img {
-            width: 140px; height: 140px; border-radius: 50%; object-fit: cover;
-            border: 2px solid rgba(255,255,255,0.1); box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            background-color: var(--bg-base);
+            width: 100%; height: 100%; border-radius: 50%; object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.1); background-color: var(--bg-base);
         }
-        .profile-content h1 { margin: 0; font-size: 2.2rem; font-weight: 800; letter-spacing: -0.5px; }
-        .profile-content h2 { margin: 8px 0 20px 0; font-size: 1.05rem; color: var(--accent-blue); font-weight: 500; }
-        .profile-content p { font-size: 0.95rem; line-height: 1.7; color: #8b9bb4; font-weight: 400; max-width: 90%; }
 
-        /* --- QUADRANT 2: EXPERIENCE TIMELINE --- */
-        #q-arc { padding: 0; }
-        .quad-title-overlay { position: absolute; top: 30px; left: 30px; right: 30px; z-index: 20; }
-        
-        .arc-viewport {
-            flex: 1; position: relative; width: 100%; height: 100%;
-            cursor: grab; touch-action: none; z-index: 10; overflow: hidden;
+        h1 { margin: 0 0 10px 0; font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; }
+        h2 { margin: 0 0 24px 0; font-size: 1.1rem; color: var(--accent-blue); font-weight: 500; line-height: 1.5; }
+        p.bio { font-size: 1rem; line-height: 1.7; color: var(--text-muted); font-weight: 400; margin-bottom: auto; }
+
+        .nav-links { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; }
+        .nav-links a {
+            color: var(--text-muted); text-decoration: none; font-weight: 600; font-size: 0.9rem;
+            text-transform: uppercase; letter-spacing: 1px; transition: color 0.2s;
+            display: flex; align-items: center; gap: 10px;
         }
-        .arc-viewport:active { cursor: grabbing; }
-        
-        #timeline-canvas {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 1;
+        .nav-links a:hover { color: var(--text-main); }
+        .nav-links a::before {
+            content: ''; width: 30px; height: 2px; background: var(--border-subtle); transition: width 0.2s, background 0.2s;
         }
+        .nav-links a:hover::before { width: 50px; background: var(--accent-blue); }
+
+        /* RIGHT: SCROLLING CONTENT */
+        .right-pane {
+            flex: 1;
+            padding: 40px 60px 100px 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 120px; /* Massive spacing between major sections */
+        }
+
+        .section-header {
+            font-size: 1.8rem; font-weight: 800; margin-bottom: 40px;
+            display: flex; align-items: center; gap: 15px;
+        }
+        .section-header::after {
+            content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--border-subtle), transparent);
+        }
+
+        /* --- EXPERIENCE TIMELINE (NATIVE SCROLL) --- */
+        .experience-container { position: relative; padding-left: 40px; }
         
-        .arc-scene { position: absolute; width: 100%; height: 100%; }
-        
-        .arc-card {
-            position: absolute;
-            left: clamp(100px, 15vw, 160px);
-            top: 50%;
-            width: 80%; max-width: 450px;
-            background: rgba(15, 20, 30, 0.4);
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(255,255,255,0.03);
-            border-left: 3px solid rgba(56, 189, 248, 0.2);
+        /* The vertical timeline line */
+        .experience-container::before {
+            content: ''; position: absolute; top: 0; bottom: 0; left: 10px;
+            width: 2px; background: var(--border-subtle); border-radius: 2px;
+        }
+
+        .job-card {
+            position: relative;
+            background: rgba(20, 28, 43, 0.4);
+            border: 1px solid var(--border-subtle);
             border-radius: 16px;
-            padding: 24px; cursor: pointer;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transform-origin: center left;
-            transition: border-color 0.3s, background-color 0.3s;
-            will-change: transform, opacity, filter;
-            filter: grayscale(80%) brightness(0.6); 
-        }
-        
-        .arc-card h3 { margin: 0; font-size: 1.2rem; color: var(--text-muted); font-weight: 600; transition: color 0.3s; }
-        .arc-card h4 { margin: 6px 0 12px 0; font-size: 0.9rem; color: var(--text-muted); font-weight: 400; }
-        .arc-card .date { 
-            position: absolute; top: 24px; right: 24px;
-            font-size: 0.75rem; color: var(--text-muted); font-weight: 600; transition: color 0.3s;
+            padding: 30px;
+            margin-bottom: 20px; /* Base margin, JS will increase this based on time */
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform-origin: left center;
+            opacity: 0.4;
+            transform: scale(0.95) translateX(10px);
         }
 
-        .arc-card.active {
-            background: rgba(20, 27, 41, 0.95);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-left: 4px solid var(--accent-blue);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6), -10px 0 20px rgba(56, 189, 248, 0.1);
-            filter: grayscale(0%) brightness(1);
+        /* Node on the timeline */
+        .job-card::before {
+            content: ''; position: absolute; top: 35px; left: -35px;
+            width: 12px; height: 12px; border-radius: 50%;
+            background: var(--bg-base); border: 2px solid var(--text-muted);
+            transition: all 0.5s ease; z-index: 2;
         }
-        .arc-card.active h3 { color: var(--text-active); }
-        .arc-card.active .date { color: var(--accent-blue); }
-        .arc-card.active h4 { color: #8b9bb4; }
 
-        /* --- QUADRANT 3: SKILLS --- */
+        /* Active/Focal State (Triggered by Scroll) */
+        .job-card.active {
+            opacity: 1; transform: scale(1) translateX(0);
+            background: rgba(30, 41, 59, 0.8);
+            border-color: rgba(255,255,255,0.15);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 20px rgba(56, 189, 248, 0.05);
+        }
+        .job-card.active::before {
+            background: var(--accent-blue); border-color: var(--accent-blue);
+            box-shadow: 0 0 15px var(--accent-blue);
+        }
+
+        .job-card .date { font-size: 0.85rem; color: var(--accent-blue); font-weight: 600; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .job-card h3 { margin: 0 0 5px 0; font-size: 1.4rem; font-weight: 700; color: var(--text-main); }
+        .job-card h4 { margin: 0 0 20px 0; font-size: 1rem; color: var(--text-muted); font-weight: 500; }
+        .job-card ul { margin: 0; padding-left: 20px; color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; }
+        .job-card li { margin-bottom: 8px; }
+        .job-card li::marker { color: var(--text-muted); }
+        .job-card.active li::marker { color: var(--accent-blue); }
+
+        /* --- SKILLS CONSTELLATION --- */
+        .skills-container {
+            position: relative;
+            height: 600px;
+            background: rgba(20, 28, 43, 0.3);
+            border: 1px solid var(--border-subtle);
+            border-radius: 24px;
+            overflow: hidden;
+        }
         #skills-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-        .legend {
-            position: absolute; bottom: 25px; left: 25px;
-            display: flex; gap: 15px;
-            font-size: 0.75rem; color: var(--text-muted); font-weight: 500;
-            pointer-events: none;
-        }
-        .legend-item { display: flex; align-items: center; gap: 6px; }
-        .dot { width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
 
-        /* --- QUADRANT 4: PUBLICATIONS --- */
-        .stack-viewport { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; }
+        /* --- PUBLICATIONS STACK --- */
+        .pubs-container {
+            position: relative;
+            height: 450px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
         .paper {
-            position: absolute; width: 85%; max-width: 550px;
-            background: rgba(20, 27, 41, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            color: var(--text-main); padding: 30px; border-radius: 16px;
-            border: 1px solid var(--border-light); border-top: 2px solid var(--accent-blue);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6); cursor: pointer;
+            position: absolute;
+            width: 100%; max-width: 600px;
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            padding: 35px; border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-top: 3px solid var(--accent-blue);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            cursor: pointer; user-select: none;
             transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s; 
-            user-select: none;
         }
         
         .paper:nth-last-child(1) { transform: translateY(0) scale(1); opacity: 1; z-index: 10; }
@@ -182,114 +205,412 @@
         .paper:nth-last-child(3) { transform: translateY(40px) scale(0.9); opacity: 0.4; z-index: 8; border-top-color: var(--accent-green); }
         .paper:nth-last-child(n+4) { transform: translateY(60px) scale(0.85); opacity: 0; z-index: 7; pointer-events: none; }
         
-        .paper.swipe-out { transform: translateX(100%) translateY(-50px) rotate(10deg) scale(1) !important; opacity: 0 !important; pointer-events: none; }
+        .paper.swipe-out { transform: translateX(80%) translateY(-50px) rotate(10deg) scale(1.05) !important; opacity: 0 !important; pointer-events: none; }
         
-        .stack-viewport.restacking .paper {
+        .pubs-container.restacking .paper {
             transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.4s !important;
             opacity: 0 !important;
         }
 
-        .paper h3 { margin: 0 0 10px 0; font-size: 1.1rem; font-weight: 600; line-height: 1.4; }
-        .paper p { margin: 0; font-size: 0.9rem; color: #8b9bb4; line-height: 1.5; }
+        .paper h3 { margin: 0 0 12px 0; font-size: 1.2rem; font-weight: 700; color: #fff; line-height: 1.4; }
+        .paper p { margin: 0; font-size: 0.95rem; color: #cbd5e1; line-height: 1.6; }
         .paper-year { 
-            display: inline-block; margin-bottom: 12px; font-size: 0.75rem; font-weight: 600; color: var(--accent-blue);
-            background: rgba(56, 189, 248, 0.1); padding: 4px 10px; border-radius: 12px;
+            display: inline-block; margin-bottom: 15px; font-size: 0.8rem; font-weight: 700; color: var(--accent-blue);
+            background: rgba(56, 189, 248, 0.1); padding: 5px 12px; border-radius: 12px;
         }
 
-        /* --- MODAL --- */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(9, 14, 23, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            z-index: 9999; display: flex; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
-        }
-        .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-content {
-            background: rgba(20, 27, 41, 0.95); border: 1px solid rgba(255,255,255,0.1); border-top: 3px solid var(--accent-blue);
-            border-radius: 20px; width: 90%; max-width: 650px; padding: 40px; position: relative;
-            transform: translateY(20px) scale(0.98); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.7);
-        }
-        .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
-        .close-btn {
-            position: absolute; top: 20px; right: 24px; background: none; border: none; color: #8b9bb4;
-            font-size: 2rem; cursor: pointer; transition: color 0.2s;
-        }
-        .close-btn:hover { color: var(--text-main); }
-        #modal-company { margin: 0; font-size: 1.8rem; font-weight: 800; color: var(--text-main); }
-        #modal-title { margin: 8px 0 24px 0; font-size: 1.1rem; color: var(--accent-blue); font-weight: 500; }
-        #modal-body { font-size: 0.95rem; line-height: 1.7; color: #8b9bb4; }
-        #modal-body ul { padding-left: 20px; margin: 0; }
-        #modal-body li { margin-bottom: 12px; }
-        #modal-body li::marker { color: var(--accent-blue); }
-
+        /* --- MOBILE RESPONSIVENESS --- */
         @media (max-width: 1024px) {
-            .dashboard { grid-template-columns: 1fr; grid-template-rows: auto; height: auto; overflow-y: auto; padding: 15px; }
-            body { overflow-y: auto; }
-            .quadrant { height: 500px; padding: 20px; } 
-            .arc-card { left: 90px; width: 70%; }
+            .layout { flex-direction: column; }
+            .left-pane { flex: none; width: 100%; max-width: 100%; padding: 20px; }
+            .sticky-wrapper { 
+                position: relative; top: 0; height: auto; padding: 30px; 
+                flex-direction: column; align-items: center; text-align: center;
+            }
+            .nav-links { display: none; } /* Hide side-nav on mobile */
+            .right-pane { padding: 20px; gap: 80px; }
+            .job-card { padding: 20px; }
+            .skills-container { height: 450px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- MODAL -->
-    <div class="modal-overlay" id="modal">
-        <div class="modal-content">
-            <button class="close-btn" onclick="closeModal()">×</button>
-            <h1 id="modal-company">Company</h1>
-            <h2 id="modal-title">Title</h2>
-            <div id="modal-body">Details go here...</div>
-        </div>
-    </div>
-
-    <div class="dashboard">
-        <!-- Profile -->
-        <div class="quadrant">
-            <div class="profile-content">
+    <div class="layout">
+        
+        <!-- LEFT: STICKY PROFILE -->
+        <aside class="left-pane">
+            <div class="sticky-wrapper">
                 <div class="profile-img-container">
-                    <!-- Clean img tag ensures no parsing errors -->
-                    <img src="profile.jpg" alt="Justin D. Purl" class="profile-img">
+                    <img src="profile.jpg" alt="Justin D. Purl" class="profile-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzNlNGE1YyIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1zaXplPSI1MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2ZmZiI+👨‍💻PC90ZXh0Pjwvc3ZnPg=='">
                 </div>
                 <h1>Justin D. Purl</h1>
                 <h2>Head of People Systems & Analytics @ Archer</h2>
-                <p>I manage complex projects requiring deep knowledge of research methodology and statistics. I leverage advanced analytics, HRIS design, and custom AI agents to turn sparse data into highly actionable insights.</p>
+                <p class="bio">I manage complex projects requiring deep knowledge of research methodology and statistics. I leverage advanced analytics, HRIS design, and custom AI agents to turn sparse data into highly actionable insights.</p>
+                
+                <div class="nav-links">
+                    <a href="#experience">Experience</a>
+                    <a href="#skills">Skills Ecosystem</a>
+                    <a href="#publications">Publications</a>
+                </div>
             </div>
-        </div>
+        </aside>
 
-        <!-- Experience Timeline -->
-        <div class="quadrant" id="q-arc">
-            <div class="quad-title quad-title-overlay">
-                Experience Timeline
-                <span class="instruction">Scroll / Drag</span>
-            </div>
-            <canvas id="timeline-canvas"></canvas>
-            <div class="arc-viewport" id="arc-viewport">
-                <div class="arc-scene" id="arc-scene"></div>
-            </div>
-        </div>
+        <!-- RIGHT: SCROLLING CONTENT -->
+        <main class="right-pane">
 
-        <!-- Skills Constellation -->
-        <div class="quadrant">
-            <div class="quad-title">
-                Skills Ecosystem
-                <span class="instruction">Hover to discover</span>
-            </div>
-            <canvas id="skills-canvas"></canvas>
-            <div class="legend">
-                <div class="legend-item"><div class="dot" style="background: var(--accent-blue); color: var(--accent-blue);"></div> Tech & Tools</div>
-                <div class="legend-item"><div class="dot" style="background: var(--accent-purple); color: var(--accent-purple);"></div> Stats & Methods</div>
-                <div class="legend-item"><div class="dot" style="background: var(--accent-green); color: var(--accent-green);"></div> HR & Strategy</div>
-            </div>
-        </div>
+            <!-- EXPERIENCE SECTION -->
+            <section id="experience">
+                <h2 class="section-header">Experience</h2>
+                <div class="experience-container" id="exp-container">
+                    <!-- Cards injected by JS to allow time-based margin math -->
+                </div>
+            </section>
 
-        <!-- Publications Stack -->
-        <div class="quadrant">
-            <div class="quad-title">
-                Select Publications
-                <span class="instruction">Tap top card</span>
-            </div>
-            <div class="stack-viewport" id="pub-stack">
-                <div class="paper">
-                    <span class="paper-year">2017</span>
-                    <h3>A computational
+            <!-- SKILLS SECTION -->
+            <section id="skills">
+                <h2 class="section-header">Skills Ecosystem</h2>
+                <div class="skills-container" id="skills-box">
+                    <canvas id="skills-canvas"></canvas>
+                </div>
+            </section>
+
+            <!-- PUBLICATIONS SECTION -->
+            <section id="publications">
+                <h2 class="section-header">Select Publications</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px;">Tap top card to cycle deck</p>
+                
+                <div class="pubs-container" id="pub-stack">
+                    <div class="paper">
+                        <span class="paper-year">2017</span>
+                        <h3>A computational model of self-efficacy’s various effects on performance</h3>
+                        <p>Vancouver, J. B., & Purl, J. D. <br>Journal of Applied Psychology, 102(4), 599-616.</p>
+                    </div>
+                    <div class="paper">
+                        <span class="paper-year">2019</span>
+                        <h3>Turnover modeling and event history analysis</h3>
+                        <p>McCloy, R., Purl, J., & Banjanovic, E. <br>Industrial & Org. Psychology.</p>
+                    </div>
+                    <div class="paper">
+                        <span class="paper-year">2021</span>
+                        <h3>Expert judgments to inform bayesian models of insider threat risk</h3>
+                        <p>Greitzer, F. L., Purl, J., et al. <br>JoWUA, 12(2), 3-47.</p>
+                    </div>
+                    <div class="paper">
+                        <span class="paper-year">2022</span>
+                        <h3>Demands, resources, well-being and strain: Meta-analyzing moderator effects</h3>
+                        <p>Fila, M. J., Purl, J., & Jang, R. <br>Applied Research in Quality of Life.</p>
+                    </div>
+                    <div class="paper">
+                        <span class="paper-year">2022</span>
+                        <h3>Advances in game-like personality assessment</h3>
+                        <p>Harman, J. L., & Purl, J. <br>Trends in Psychology, 1-15.</p>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- MAIN JAVASCRIPT -->
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        
+        /* =========================================
+           1. TIME-MAPPED EXPERIENCE TIMELINE
+           ========================================= */
+        const jobs = [
+            { company: "Archer", title: "Head of People Systems & Analytics", date: "Apr 2026 - Present", monthsGapPrior: 0, 
+              bullets: ["Streamlined Workday and Greenhouse via interaction playbooks based on user journeys.", "Centralized workforce planning into a single dashboard aligning Finance, HRBP, and business leaders.", "Relaunched position management, comp planning, and recruiting templates."] },
+            { company: "Gilead Sciences", title: "Assoc. Director of People Analytics", date: "Apr 2025 - Apr 2026", monthsGapPrior: 12, 
+              bullets: ["Managed 5-10 off-shore resources developing a custom agent to support an AI chatbot.", "Streamlined project management to increase delivery speed from 2 years to 3 months.", "Quantified the impact of compensation on employee retention and diagnosed drop-offs in underrepresented talent."] },
+            { company: "Zscaler", title: "Head of People Analytics & Insights", date: "Apr 2024 - Apr 2025", monthsGapPrior: 12, 
+              bullets: ["Set strategy and vision for 7 analytics resources across the HR function.", "Designed and executed sentiment programs in partnership with the Culture team.", "Developed a forecast model of attrition with Finance and aggregated benchmark information to form effective DEI aspirations."] },
+            { company: "TikTok", title: "Head of Global People Analytics", date: "Mar 2022 - Apr 2024", monthsGapPrior: 25, 
+              bullets: ["Identified key leadership behaviors from Natural Language Processing of performance review text.", "Streamlined interview processes by quantifying the ROI across multiple interview stages.", "Forecasted headcount growth accounting for fluctuations in the labor market through a depressed macro economy."] },
+            { company: "Google", title: "Senior People Analyst", date: "Aug 2019 - Mar 2022", monthsGapPrior: 31, 
+              bullets: ["Lead Hiring Analyst: Developed advanced scoring methodologies globally to optimize validity and equity.", "Lead Innovation Analyst: Upgraded attrition modeling programs to incorporate survival analysis.", "Lead Productivity Analyst: Developed collaboration metrics to support evaluation of work-from-anywhere initiatives."] },
+            { company: "HumRRO", title: "Research Scientist", date: "Sept 2015 - Aug 2019", monthsGapPrior: 47, 
+              bullets: ["Project Director: Led small teams on projects requiring complex analytic (NLP, Psychometrics) and programming experience.", "Innovation: Planned and executed development of an ontology of insider threat.", "Conducted psychometric analysis to support a large-scale educational testing program."] }
+        ];
+
+        const expContainer = document.getElementById('exp-container');
+        
+        // Build cards and inject time-based margins
+        jobs.forEach((job, index) => {
+            const card = document.createElement('div');
+            card.className = 'job-card';
+            
+            // MATH: 1 month of time = 10px of extra scrolling distance
+            const timeMargin = job.monthsGapPrior * 10; 
+            // We apply this extra margin to the top of the card to create the gap
+            if(index > 0) card.style.marginTop = `${timeMargin + 20}px`; 
+
+            const bulletsHtml = job.bullets.map(b => `<li>${b}</li>`).join('');
+            
+            card.innerHTML = `
+                <div class="date">${job.date}</div>
+                <h3>${job.company}</h3>
+                <h4>${job.title}</h4>
+                <ul>${bulletsHtml}</ul>
+            `;
+            expContainer.appendChild(card);
+        });
+
+        // Intersection Observer to handle the "Focal Active" state on scroll
+        const cards = document.querySelectorAll('.job-card');
+        const observerOptions = {
+            root: null,
+            rootMargin: '-30% 0px -30% 0px', // Triggers only when card is in the middle 40% of the screen
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                } else {
+                    entry.target.classList.remove('active');
+                }
+            });
+        }, observerOptions);
+
+        cards.forEach(card => observer.observe(card));
+
+
+        /* =========================================
+           2. SKILLS CONSTELLATION
+           ========================================= */
+        const skCanvas = document.getElementById('skills-canvas');
+        if (skCanvas) {
+            const skCtx = skCanvas.getContext('2d');
+            let skWidth, skHeight;
+            let clusters = [];
+            let mouse = { x: -1000, y: -1000 };
+
+            const skillHierarchy = [
+                {
+                    name: "Tech & Tools", rgb: "56, 189, 248",
+                    nodes: [
+                        { id: "db", text: "Data Eng", level: 1 },
+                        { id: "s1", text: "Snowflake", level: 2, parent: "db" },
+                        { id: "s2", text: "Databricks", level: 2, parent: "db" },
+                        { id: "hris", text: "HRIS", level: 1 },
+                        { id: "s3", text: "Workday", level: 2, parent: "hris" },
+                        { id: "s4", text: "Greenhouse", level: 2, parent: "hris" },
+                        { id: "lang", text: "Languages", level: 1 },
+                        { id: "s5", text: "Python", level: 2, parent: "lang" },
+                        { id: "s6", text: "R", level: 2, parent: "lang" }
+                    ]
+                },
+                {
+                    name: "Stats & Methods", rgb: "167, 139, 250",
+                    nodes: [
+                        { id: "psych", text: "Psychometrics", level: 1 },
+                        { id: "s11", text: "IRT", level: 2, parent: "psych" },
+                        { id: "mod", text: "Modeling", level: 1 },
+                        { id: "s13", text: "Survival", level: 2, parent: "mod" },
+                        { id: "s14", text: "Bayesian", level: 2, parent: "mod" },
+                        { id: "res", text: "Research", level: 1 },
+                        { id: "s16", text: "Meta-analysis", level: 2, parent: "res" }
+                    ]
+                },
+                {
+                    name: "HR & Strategy", rgb: "52, 211, 153",
+                    nodes: [
+                        { id: "plan", text: "Planning", level: 1 },
+                        { id: "s21", text: "Workforce", level: 2, parent: "plan" },
+                        { id: "s22", text: "Comp", level: 2, parent: "plan" },
+                        { id: "tal", text: "Talent", level: 1 },
+                        { id: "s23", text: "Selection", level: 2, parent: "tal" },
+                        { id: "s24", text: "Retention", level: 2, parent: "tal" },
+                        { id: "ai", text: "AI Ops", level: 1 },
+                        { id: "s25", text: "Prompt Eng", level: 2, parent: "ai" }
+                    ]
+                }
+            ];
+
+            // Use ResizeObserver for rock-solid canvas sizing inside flex containers
+            const resizeObserver = new ResizeObserver(entries => {
+                for (let entry of entries) {
+                    skWidth = skCanvas.width = entry.contentRect.width;
+                    skHeight = skCanvas.height = entry.contentRect.height;
+                    initSkCanvas();
+                }
+            });
+            resizeObserver.observe(skCanvas.parentElement);
+
+            function initSkCanvas() {
+                const scaleFactor = Math.min(1, skWidth / 800);
+                
+                clusters = skillHierarchy.map((data, index) => {
+                    const cx = index === 0 ? skWidth*0.25 : index === 1 ? skWidth*0.75 : skWidth*0.5;
+                    const cy = index === 0 ? skHeight*0.35 : index === 1 ? skHeight*0.35 : skHeight*0.75;
+                    
+                    let processedNodes = [];
+                    let level1Nodes = data.nodes.filter(n => n.level === 1);
+                    let angleStep = (Math.PI * 2) / level1Nodes.length;
+
+                    level1Nodes.forEach((l1, i) => {
+                        l1.baseAngle = i * angleStep;
+                        l1.radius = 45 * scaleFactor; 
+                        processedNodes.push(l1);
+
+                        let children = data.nodes.filter(n => n.parent === l1.id);
+                        let childSpread = 0.8; 
+                        let childStep = children.length > 1 ? childSpread / (children.length - 1) : 0;
+                        let startAngle = l1.baseAngle - (childSpread / 2);
+
+                        children.forEach((child, j) => {
+                            child.baseAngle = children.length === 1 ? l1.baseAngle : startAngle + (j * childStep);
+                            child.radius = (100 + (Math.random() * 20)) * scaleFactor; 
+                            processedNodes.push(child);
+                        });
+                    });
+
+                    return { name: data.name, rgb: data.rgb, cx: cx, cy: cy, rotation: 0, nodes: processedNodes };
+                });
+            }
+
+            function animateSkCanvas() {
+                skCtx.clearRect(0, 0, skWidth, skHeight);
+                let hoveredNode = null; let minDist = Infinity;
+
+                clusters.forEach(cluster => {
+                    cluster.rotation += 0.0008; 
+
+                    cluster.nodes.forEach(n => {
+                        n.x = cluster.cx + Math.cos(n.baseAngle + cluster.rotation) * n.radius;
+                        n.y = cluster.cy + Math.sin(n.baseAngle + cluster.rotation) * n.radius;
+                        
+                        let d = Math.hypot(mouse.x - n.x, mouse.y - n.y);
+                        if (d < 40 && d < minDist && n.level === 2) { minDist = d; hoveredNode = {node: n, rgb: cluster.rgb}; }
+                    });
+
+                    // Draw Outer Perimeter
+                    let l2Nodes = cluster.nodes.filter(n => n.level === 2).sort((a,b) => a.baseAngle - b.baseAngle);
+                    skCtx.beginPath();
+                    skCtx.strokeStyle = `rgba(${cluster.rgb}, 0.15)`;
+                    skCtx.lineWidth = 1;
+                    l2Nodes.forEach((n, i) => {
+                        if (i === 0) skCtx.moveTo(n.x, n.y);
+                        else skCtx.lineTo(n.x, n.y);
+                    });
+                    skCtx.closePath();
+                    skCtx.stroke();
+
+                    // Draw Branches
+                    cluster.nodes.forEach(n => {
+                        if (n.level === 1) {
+                            skCtx.beginPath(); skCtx.strokeStyle = `rgba(${cluster.rgb}, 0.15)`;
+                            skCtx.moveTo(cluster.cx, cluster.cy); skCtx.lineTo(n.x, n.y); skCtx.stroke();
+                            
+                            let children = cluster.nodes.filter(c => c.parent === n.id);
+                            children.forEach(c => {
+                                skCtx.beginPath(); skCtx.moveTo(n.x, n.y); skCtx.lineTo(c.x, c.y); skCtx.stroke();
+                            });
+                        }
+                    });
+
+                    // Draw Center Label
+                    skCtx.fillStyle = `rgba(${cluster.rgb}, 0.9)`;
+                    skCtx.font = "bold 13px Inter"; skCtx.textAlign = "center";
+                    skCtx.fillText(cluster.name, cluster.cx, cluster.cy + 4);
+
+                    // Draw Dots & Node Labels
+                    cluster.nodes.forEach(n => {
+                        skCtx.beginPath(); skCtx.arc(n.x, n.y, n.level === 1 ? 4 : 3, 0, Math.PI * 2);
+                        skCtx.fillStyle = `rgb(${cluster.rgb})`; skCtx.fill();
+
+                        skCtx.fillStyle = n.level === 1 ? `rgb(${cluster.rgb})` : "rgba(255,255,255,0.7)";
+                        skCtx.font = n.level === 1 ? "600 11px Inter" : "400 10px Inter";
+                        
+                        let offset = n.level === 1 ? 8 : 6;
+                        if (n.x < cluster.cx) {
+                            skCtx.textAlign = "right"; skCtx.fillText(n.text, n.x - offset, n.y + 3);
+                        } else {
+                            skCtx.textAlign = "left"; skCtx.fillText(n.text, n.x + offset, n.y + 3);
+                        }
+                    });
+                });
+
+                // Mouse Interaction Tooltip
+                if (hoveredNode) {
+                    skCtx.beginPath();
+                    skCtx.strokeStyle = `rgba(${hoveredNode.rgb}, 0.8)`;
+                    skCtx.lineWidth = 1.5;
+                    skCtx.moveTo(hoveredNode.node.x, hoveredNode.node.y);
+                    skCtx.lineTo(mouse.x, mouse.y);
+                    skCtx.stroke();
+                    
+                    skCtx.font = "600 12px Inter";
+                    const textWidth = skCtx.measureText(hoveredNode.node.text).width + 24;
+                    let tX = mouse.x + 15, tY = mouse.y - 15;
+                    if (tX + textWidth > skWidth) tX = mouse.x - textWidth - 15;
+                    
+                    skCtx.fillStyle = "rgba(20, 27, 41, 0.95)";
+                    skCtx.beginPath();
+                    skCtx.roundRect ? skCtx.roundRect(tX, tY - 14, textWidth, 28, 6) : skCtx.rect(tX, tY - 14, textWidth, 28);
+                    skCtx.fill(); skCtx.strokeStyle = `rgb(${hoveredNode.rgb})`; skCtx.lineWidth = 1; skCtx.stroke();
+                    
+                    skCtx.fillStyle = "#fff"; skCtx.textAlign = "left";
+                    skCtx.fillText(hoveredNode.node.text, tX + 12, tY + 4);
+                }
+
+                requestAnimationFrame(animateSkCanvas);
+            }
+
+            skCanvas.parentElement.addEventListener('mousemove', e => {
+                const r = skCanvas.getBoundingClientRect();
+                mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top;
+            });
+            skCanvas.parentElement.addEventListener('mouseout', () => { mouse.x = -1000; });
+            animateSkCanvas();
+        }
+
+        /* =========================================
+           3. PUBLICATION STACK LOGIC
+           ========================================= */
+        const stack = document.getElementById('pub-stack');
+        let pubClicks = 0;
+        let isPubAnimating = false;
+        
+        if (stack) {
+            const originalPapers = Array.from(stack.children); 
+
+            stack.addEventListener('click', function(e) {
+                if (isPubAnimating || stack.classList.contains('restacking')) return; 
+                
+                const topCard = stack.lastElementChild;
+                if (topCard && topCard.classList.contains('paper')) {
+                    isPubAnimating = true;
+                    pubClicks++;
+
+                    if (pubClicks >= originalPapers.length) {
+                        stack.classList.add('restacking');
+                        Array.from(stack.children).forEach((card) => {
+                            const rX = (Math.random() - 0.5) * 40;
+                            card.style.transform = `translateY(-150%) rotate(${rX}deg)`;
+                        });
+                        setTimeout(() => {
+                            stack.innerHTML = '';
+                            originalPapers.forEach(p => { p.style.transform = ''; stack.appendChild(p); });
+                            stack.classList.remove('restacking');
+                            pubClicks = 0;
+                            isPubAnimating = false;
+                        }, 600);
+                    } else {
+                        topCard.classList.add('swipe-out');
+                        setTimeout(() => {
+                            topCard.classList.remove('swipe-out');
+                            stack.prepend(topCard); 
+                            isPubAnimating = false;
+                        }, 400); 
+                    }
+                }
+            });
+        }
+    }); 
+    </script>
+</body>
+</html>
