@@ -2,355 +2,581 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Secret to Great Data Viz</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Justin D. Purl | Interactive Portfolio</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+
+        :root {
+            --bg-dark: #0f172a;
+            --panel-bg: rgba(30, 41, 59, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-blue: #38bdf8;
+            --accent-purple: #c084fc;
+            --accent-green: #34d399;
+        }
+
+        * { box-sizing: border-box; }
 
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            background-color: #0f172a; 
-            color: #f8fafc;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
             font-family: 'Inter', sans-serif;
-            overflow: hidden; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            overflow: hidden; /* Prevents body scrolling, acts like an app */
         }
 
-        /* The interactive background canvas */
-        #canvas-bg {
+        /* Subtle background grid */
+        body::before {
+            content: '';
             position: absolute;
-            top: 0;
-            left: 0;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -1;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: row;
             width: 100%;
             height: 100%;
-            z-index: 1;
-            opacity: 0.4;
-            pointer-events: none;
+            padding: clamp(10px, 2vw, 20px);
+            gap: clamp(10px, 2vw, 20px);
         }
 
-        /* Fluid sizing for mobile screens */
-        .story-container {
-            position: relative;
-            z-index: 10;
-            width: 90%; /* Leaves margin on small screens */
-            max-width: 650px;
-            padding: clamp(1.5rem, 5vw, 2.5rem); /* Shrinks padding on mobile */
-            text-align: center;
-            background: rgba(15, 23, 42, 0.75);
+        /* --- LEFT SIDEBAR (Profile) --- */
+        .sidebar {
+            flex: 0 0 320px;
+            background: var(--panel-bg);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            /* Allows scrolling inside the box on very short landscape phone screens */
-            max-height: 90vh;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
             overflow-y: auto;
         }
 
-        /* Step styling and animations */
-        .step {
-            display: none; 
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        .profile-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            margin: 0 auto 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            border: 4px solid var(--bg-dark);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
 
-        .step.active {
-            opacity: 1;
-            transform: translateY(0);
+        .sidebar h1 { margin: 0; font-size: 1.8rem; text-align: center; font-weight: 800; }
+        .sidebar h2 { margin: 5px 0 20px 0; font-size: 1rem; text-align: center; color: var(--accent-blue); font-weight: 600; }
+        .sidebar p { font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); font-weight: 300; }
+
+        .nav-menu {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        /* Accessible, responsive typography */
-        h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 800; line-height: 1.2; margin-bottom: 1rem; }
-        h2 { font-size: clamp(1.4rem, 4vw, 1.8rem); font-weight: 600; color: #94a3b8; }
-        p { font-size: clamp(1rem, 3vw, 1.25rem); line-height: 1.6; margin-bottom: 1.5rem; font-weight: 300; }
-        
-        .highlight { color: #38bdf8; }
-        
-        .benefits-list {
-            text-align: left;
-            margin: 2rem auto;
-            max-width: 400px;
-            list-style: none;
-            padding: 0;
-        }
-
-        .benefits-list li {
-            font-size: clamp(0.95rem, 2.5vw, 1.1rem);
-            margin-bottom: 1rem;
-            padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            transform: translateX(-20px);
-            opacity: 0;
-            animation: slideIn 0.5s forwards;
-        }
-
-        .benefits-list li:nth-child(1) { animation-delay: 0.1s; }
-        .benefits-list li:nth-child(2) { animation-delay: 0.3s; }
-        .benefits-list li:nth-child(3) { animation-delay: 0.5s; }
-        .benefits-list li:nth-child(4) { animation-delay: 0.7s; }
-
-        @keyframes slideIn {
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        /* Touch-friendly interactive buttons */
-        .continue-btn {
-            display: inline-block;
-            background: linear-gradient(135deg, #38bdf8, #2563eb);
-            color: white;
-            border: none;
-            padding: 16px 36px; /* Larger touch target for mobile */
-            font-size: 1.1rem;
+        .nav-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 1rem;
             font-weight: 600;
-            border-radius: 30px;
             cursor: pointer;
-            margin-top: 1rem;
-            transition: transform 0.2s, box-shadow 0.2s;
-            font-family: 'Inter', sans-serif;
-            text-decoration: none; 
-            touch-action: manipulation; /* Prevents double-tap zoom on mobile */
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
         }
 
-        .continue-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px -10px #38bdf8;
+        .nav-btn:hover { background: rgba(255,255,255,0.1); }
+        .nav-btn.active {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: var(--bg-dark);
+            box-shadow: 0 5px 15px rgba(56, 189, 248, 0.4);
+        }
+
+        /* --- RIGHT STAGE (Interactive Content) --- */
+        .stage {
+            flex: 1;
+            position: relative;
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .view-section {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+        }
+
+        .view-section.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .section-header {
+            margin: 0 0 20px 0;
+            font-size: 2rem;
+            font-weight: 800;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .instruction { font-size: 0.9rem; color: var(--accent-blue); font-weight: 400; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* 1. ROLODEX (Experience) */
+        .rolodex {
+            flex: 1;
+            display: flex;
+            gap: 30px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            align-items: center;
+            padding: 20px 0;
+            /* Hide scrollbar for clean look */
+            -ms-overflow-style: none; 
+            scrollbar-width: none;
+        }
+        .rolodex::-webkit-scrollbar { display: none; }
+
+        .role-card {
+            min-width: 350px;
+            height: 90%;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            scroll-snap-align: center;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+        }
+
+        .role-card:hover { transform: translateY(-5px); }
+        .role-company { font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin: 0; }
+        .role-title { font-size: 1.1rem; color: var(--accent-blue); margin: 5px 0 15px 0; font-weight: 600; }
+        .role-date { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px; font-weight: 600; text-transform: uppercase; }
+        .role-desc { font-size: 1rem; color: #cbd5e1; line-height: 1.6; overflow-y: auto; }
+
+        /* 2. CONSTELLATION (Skills) */
+        #skills-canvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+        }
+        .legend {
+            position: absolute;
+            bottom: 30px; left: 30px;
+            background: rgba(0,0,0,0.5);
+            padding: 15px; border-radius: 10px;
+            font-size: 0.9rem; pointer-events: none;
+        }
+        .legend-item { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+
+        /* 3. STACK (Publications) */
+        .stack-container {
+            flex: 1;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
         }
         
-        .continue-btn:active {
-            transform: translateY(1px);
+        .paper {
+            position: absolute;
+            width: 100%;
+            max-width: 500px;
+            background: #f8fafc;
+            color: var(--bg-dark);
+            padding: 40px 30px;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            user-select: none;
+            border-top: 5px solid var(--accent-blue);
         }
 
-        /* Accessibility: Clear focus states for keyboard users */
-        .continue-btn:focus-visible {
-            outline: 3px solid #ffffff;
-            outline-offset: 4px;
+        /* The CSS Magic that creates the visual stack automatically based on DOM order */
+        .paper:nth-last-child(1) { transform: translateY(0) scale(1); opacity: 1; z-index: 10; }
+        .paper:nth-last-child(2) { transform: translateY(20px) scale(0.95); opacity: 0.8; z-index: 9; }
+        .paper:nth-last-child(3) { transform: translateY(40px) scale(0.9); opacity: 0.6; z-index: 8; }
+        .paper:nth-last-child(n+4) { transform: translateY(60px) scale(0.85); opacity: 0; z-index: 7; pointer-events: none; }
+
+        /* Animation class applied via JS */
+        .paper.swipe-out {
+            transform: translateX(120%) translateY(-50px) rotate(15deg) scale(1) !important;
+            opacity: 0 !important;
+            pointer-events: none;
         }
 
-        .click-cue {
-            font-size: 0.85rem;
-            color: #94a3b8;
-            margin-top: 15px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+        .paper h3 { margin: 0 0 10px 0; font-size: 1.3rem; font-weight: 800; }
+        .paper p { margin: 0; font-size: 1rem; color: #475569; line-height: 1.5; }
+        .paper-year { position: absolute; top: 15px; right: 20px; font-weight: 800; color: var(--accent-blue); }
+
+        /* --- MOBILE RESPONSIVENESS --- */
+        @media (max-width: 900px) {
+            .app-container { flex-direction: column; }
+            .sidebar { 
+                flex: 0 0 auto; 
+                padding: 20px; 
+                max-height: 40vh; /* Limits height on mobile */
+            }
+            .nav-menu { flex-direction: row; flex-wrap: wrap; margin-top: 20px; }
+            .nav-btn { flex: 1; text-align: center; justify-content: center; padding: 10px; font-size: 0.9rem;}
+            
+            .role-card { min-width: 85%; }
+            .section-header { font-size: 1.5rem; flex-direction: column; align-items: flex-start; gap: 5px; }
+            .paper { max-width: 90%; padding: 30px 20px;}
         }
     </style>
 </head>
 <body>
 
-    <canvas id="canvas-bg" aria-hidden="true"></canvas>
-
-    <!-- aria-live="polite" tells screen readers to read new steps out loud as they appear -->
-    <main class="story-container" aria-live="polite">
+    <div class="app-container">
         
-        <section class="step active" id="step-0" style="display: block;">
-            <h1>People keep asking me what <span class="highlight">"secret tool"</span> I use to make my data visualizations stand out.</h1>
-        </section>
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="profile-img">👨‍💻</div>
+            <h1>Justin D. Purl</h1>
+            <h2>Head of People Systems & Analytics @ Archer</h2>
+            <p>I manage complex projects requiring knowledge of research methodology and statistics. I innovate when information is sparse, manipulating data through SAS, R, and custom AI agents.</p>
+            
+            <nav class="nav-menu">
+                <button class="nav-btn active" onclick="switchTab('experience')">
+                    Experience <span>➔</span>
+                </button>
+                <button class="nav-btn" onclick="switchTab('skills')">
+                    Skills Constellation <span>➔</span>
+                </button>
+                <button class="nav-btn" onclick="switchTab('publications')">
+                    Publications <span>➔</span>
+                </button>
+            </nav>
+        </aside>
 
-        <section class="step" id="step-1">
-            <h2>Tableau?</h2>
-            <h2>PowerBI?</h2>
-            <h2>Looker?</h2>
-            <h2>Matplotlib?</h2>
-        </section>
+        <!-- MAIN STAGE -->
+        <main class="stage">
+            
+            <!-- EXPERIENCE VIEW -->
+            <section class="view-section active" id="view-experience">
+                <h1 class="section-header">
+                    Job History
+                    <span class="instruction">Swipe to explore ↔</span>
+                </h1>
+                
+                <div class="rolodex">
+                    <div class="role-card">
+                        <h2 class="role-company">Archer</h2>
+                        <h3 class="role-title">Head of People Systems & Analytics</h3>
+                        <div class="role-date">Apr 2026 - Present</div>
+                        <div class="role-desc">Transformed People Analytics and the way we partner with HRBPs. Streamlined Workday and Greenhouse. Centralized workforce planning aligning Finance, HRBP, and business leaders.</div>
+                    </div>
+                    <div class="role-card">
+                        <h2 class="role-company">Gilead Sciences</h2>
+                        <h3 class="role-title">Assoc. Director of People Analytics</h3>
+                        <div class="role-date">Apr 2025 - Apr 2026</div>
+                        <div class="role-desc">Managed offshore resources developing custom AI agents for HR. Reduced delivery time from 2 years to 3 months. Quantified the impact of comp on retention.</div>
+                    </div>
+                    <div class="role-card">
+                        <h2 class="role-company">Zscaler</h2>
+                        <h3 class="role-title">Head of People Analytics & Insights</h3>
+                        <div class="role-date">Apr 2024 - Apr 2025</div>
+                        <div class="role-desc">Set strategy for 7 analytics resources. Designed sentiment programs, developed forecast models of attrition with Finance, and aggregated D&I benchmarking.</div>
+                    </div>
+                    <div class="role-card">
+                        <h2 class="role-company">TikTok (ByteDance)</h2>
+                        <h3 class="role-title">Head of Global People Analytics</h3>
+                        <div class="role-date">Mar 2022 - Apr 2024</div>
+                        <div class="role-desc">Backed HRBPs with world-class analytics. Identified leadership behaviors using NLP. Streamlined interview processes by quantifying ROI across multiple interview stages.</div>
+                    </div>
+                    <div class="role-card">
+                        <h2 class="role-company">Google</h2>
+                        <h3 class="role-title">Senior People Analyst</h3>
+                        <div class="role-date">Aug 2019 - Mar 2022</div>
+                        <div class="role-desc">Lead Hiring Analyst managing junior analysts through global soft-skills and job-knowledge assessments. Developed survival analysis models for attrition.</div>
+                    </div>
+                    <div class="role-card">
+                        <h2 class="role-company">HumRRO</h2>
+                        <h3 class="role-title">Research Scientist</h3>
+                        <div class="role-date">Sept 2015 - Aug 2019</div>
+                        <div class="role-desc">Led teams on complex analytic projects (NLP, Psychometrics). Conducted research on insider threats and job analysis.</div>
+                    </div>
+                </div>
+            </section>
 
-        <section class="step" id="step-2">
-            <h1 style="font-size: clamp(3rem, 15vw, 5rem);" class="highlight">Nope.</h1>
-        </section>
+            <!-- SKILLS VIEW -->
+            <section class="view-section" id="view-skills">
+                <h1 class="section-header" style="position: relative; z-index: 10;">
+                    Skills Ecosystem
+                    <span class="instruction">Hover & Interact 🖱️</span>
+                </h1>
+                
+                <canvas id="skills-canvas"></canvas>
+                
+                <div class="legend">
+                    <div class="legend-item"><div class="dot" style="background: #38bdf8;"></div> Tech & Tools</div>
+                    <div class="legend-item"><div class="dot" style="background: #c084fc;"></div> Stats & Methods</div>
+                    <div class="legend-item"><div class="dot" style="background: #34d399;"></div> HR & Strategy</div>
+                </div>
+            </section>
 
-        <section class="step" id="step-3">
-            <p>I’m going to share a slightly controversial opinion...</p>
-            <p>If you want your data to look incredible in a web browser, you should probably use the languages that were <strong>built specifically for the web browser.</strong></p>
-        </section>
+            <!-- PUBLICATIONS VIEW -->
+            <section class="view-section" id="view-publications">
+                <h1 class="section-header">
+                    Select Publications
+                    <span class="instruction">Tap top card to cycle 👇</span>
+                </h1>
+                
+                <div class="stack-container" id="pub-stack">
+                    <!-- Cards are reversed in HTML so the last child is the "top" card -->
+                    <div class="paper">
+                        <div class="paper-year">2017</div>
+                        <h3>A computational model of self-efficacy’s various effects on performance</h3>
+                        <p>Vancouver, J. B., & Purl, J. D. <br><br>Journal of Applied Psychology, 102(4), 599-616.</p>
+                    </div>
+                    <div class="paper">
+                        <div class="paper-year">2019</div>
+                        <h3>Turnover modeling and event history analysis</h3>
+                        <p>McCloy, R., Purl, J., & Banjanovic, E. <br><br>Industrial and Organizational Psychology: Perspectives on Science and Practice.</p>
+                    </div>
+                    <div class="paper">
+                        <div class="paper-year">2022</div>
+                        <h3>Demands, resources, well-being and strain: Meta-analyzing moderator effects</h3>
+                        <p>Fila, M. J., Purl, J., & Jang, R. <br><br>Applied Research in Quality of Life, 1-28.</p>
+                    </div>
+                    <div class="paper">
+                        <div class="paper-year">2022</div>
+                        <h3>The dynamic nature of insider threat indicators</h3>
+                        <p>Greitzer, F. L., Purl, J. <br><br>SN Computer Science, 3(2), 1-15.</p>
+                    </div>
+                    <div class="paper">
+                        <div class="paper-year">2022</div>
+                        <h3>Advances in game-like personality assessment</h3>
+                        <p>Harman, J. L., & Purl, J. <br><br>Trends in Psychology, 1-15.</p>
+                    </div>
+                </div>
+            </section>
 
-        <section class="step" id="step-4">
-            <p>For 30 years, the smartest engineers on the planet have been ruthlessly optimizing <strong>HTML, CSS, and JavaScript.</strong></p>
-            <p>So why do we spend hours wrestling with clunky drag-and-drop BI tools trying to make them look like modern web apps?</p>
-        </section>
-
-        <section class="step" id="step-5">
-            <p>When you code your visualizations directly, everything changes. Here is what you unlock:</p>
-            <ul class="benefits-list">
-                <li>🎨 <strong>Pixel-Perfect Control:</strong> No locked color palettes.</li>
-                <li>⚡️ <strong>Limitless Interactivity:</strong> If you can dream it, you can build it.</li>
-                <li>📱 <strong>True Responsiveness:</strong> Visuals that scale to mobile beautifully.</li>
-                <li>🔗 <strong>Seamless Integration:</strong> Native to your app, no 8-second iframe loads.</li>
-            </ul>
-        </section>
-
-        <section class="step" id="step-6">
-            <p>The day I switched to coding natively for the browser was the day my work stopped being just "charts"...</p>
-            <h1>And started being <span class="highlight">experiences.</span></h1>
-            <p>Yes, the learning curve is steeper. But the ceiling is infinitely higher.</p>
-        </section>
-        
-        <section class="step" id="step-7">
-            <h1>What's your take?</h1>
-            <p>Is the speed of drag-and-drop BI tools worth the design trade-off, or is coding from scratch the ultimate flex?</p>
-            <a href="https://www.linkedin.com/in/justinpurl/" target="_blank" rel="noopener noreferrer" class="continue-btn">Let's connect on LinkedIn</a>
-        </section>
-
-        <button class="continue-btn" id="next-btn" aria-label="Continue to next slide">Continue</button>
-        <div class="click-cue" id="cue-text">Tap, Click, or Press Space</div>
-    </main>
+        </main>
+    </div>
 
     <script>
-        // --- Story Progression Logic ---
-        let currentStep = 0;
-        const totalSteps = 7;
-        let isAnimating = false; 
+        // --- TAB SWITCHING LOGIC ---
+        function switchTab(tabId) {
+            // Update Buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
 
-        function nextStep() {
-            if (isAnimating) return;
-            isAnimating = true;
+            // Update Views
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById('view-' + tabId).classList.add('active');
 
-            const currentElement = document.getElementById(`step-${currentStep}`);
-            currentElement.classList.remove('active');
-            
-            setTimeout(() => {
-                currentElement.style.display = 'none';
-                currentStep++;
-                
-                if (currentStep <= totalSteps) {
-                    const nextElement = document.getElementById(`step-${currentStep}`);
-                    nextElement.style.display = 'block';
-                    
-                    setTimeout(() => {
-                        nextElement.classList.add('active');
-                        isAnimating = false; 
-                    }, 50);
-                }
-
-                if (currentStep === totalSteps) {
-                    document.getElementById('next-btn').style.display = 'none';
-                    document.getElementById('cue-text').style.display = 'none';
-                }
-            }, 500); 
+            // Resize canvas if skills tab is opened
+            if(tabId === 'skills' && !skillsInitialized) {
+                initCanvas();
+                skillsInitialized = true;
+            }
         }
 
-        // Click Event
-        document.getElementById('next-btn').addEventListener('click', nextStep);
-
-        // Accessibility: Allow Keyboard progression (Spacebar or Right Arrow)
-        window.addEventListener('keydown', (e) => {
-            if (currentStep < totalSteps && !isAnimating) {
-                if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'Enter') {
-                    e.preventDefault(); // Prevent page scroll on spacebar
-                    nextStep();
-                }
+        // --- PUBLICATION STACK LOGIC ---
+        const stack = document.getElementById('pub-stack');
+        
+        stack.addEventListener('click', function(e) {
+            // Only trigger if clicking a paper (and specifically the top one, which is lastElementChild)
+            const topCard = stack.lastElementChild;
+            
+            if (topCard) {
+                // Add the swipe out animation class
+                topCard.classList.add('swipe-out');
+                
+                // Wait for CSS animation to finish (500ms), then move it to the back of the DOM
+                setTimeout(() => {
+                    topCard.classList.remove('swipe-out');
+                    stack.prepend(topCard); // Moves it to the bottom of the stack
+                }, 400); 
             }
         });
 
-        // --- Interactive Background (Network Nodes) ---
-        const canvas = document.getElementById('canvas-bg');
+        // --- SKILLS CONSTELLATION LOGIC ---
+        const canvas = document.getElementById('skills-canvas');
         const ctx = canvas.getContext('2d');
         let width, height;
-        let particles = [];
-        let mouse = { x: null, y: null };
+        let nodes = [];
+        let mouse = { x: -1000, y: -1000 };
+        let skillsInitialized = false;
 
-        function initCanvas() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-            particles = [];
-            // Dynamically adjust particle count based on screen size (less particles on mobile = better battery)
-            let particleCount = Math.floor((width * height) / 25000); 
-            for (let i = 0; i < particleCount; i++) {
-                particles.push(new Particle());
-            }
-        }
+        const skillData = [
+            // Tech & Tools (Blue) - Target Group 0
+            { text: "R", group: 0, color: "#38bdf8" },
+            { text: "Python", group: 0, color: "#38bdf8" },
+            { text: "SAS", group: 0, color: "#38bdf8" },
+            { text: "Databricks", group: 0, color: "#38bdf8" },
+            { text: "Snowflake", group: 0, color: "#38bdf8" },
+            { text: "Workday", group: 0, color: "#38bdf8" },
+            { text: "Tableau", group: 0, color: "#38bdf8" },
+            // Stats & Methods (Purple) - Target Group 1
+            { text: "Psychometrics", group: 1, color: "#c084fc" },
+            { text: "IRT", group: 1, color: "#c084fc" },
+            { text: "Bayesian", group: 1, color: "#c084fc" },
+            { text: "Math Modeling", group: 1, color: "#c084fc" },
+            { text: "Meta-analysis", group: 1, color: "#c084fc" },
+            { text: "Survival Analysis", group: 1, color: "#c084fc" },
+            // HR & Strategy (Green) - Target Group 2
+            { text: "People Analytics", group: 2, color: "#34d399" },
+            { text: "AI Prompt Eng", group: 2, color: "#34d399" },
+            { text: "Turnover", group: 2, color: "#34d399" },
+            { text: "Selection", group: 2, color: "#34d399" },
+            { text: "Insider Threat", group: 2, color: "#34d399" },
+            { text: "Comp Modeling", group: 2, color: "#34d399" }
+        ];
 
-        class Particle {
-            constructor() {
+        class Node {
+            constructor(data) {
+                this.text = data.text;
+                this.group = data.group;
+                this.color = data.color;
                 this.x = Math.random() * width;
                 this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 1.5;
-                this.vy = (Math.random() - 0.5) * 1.5;
-                this.radius = Math.random() * 2 + 1;
+                this.vx = (Math.random() - 0.5) * 1;
+                this.vy = (Math.random() - 0.5) * 1;
+                this.radius = 6;
+                this.targetX = 0;
+                this.targetY = 0;
             }
+
             update() {
+                // Set target centers based on group to create clusters
+                if (this.group === 0) { this.targetX = width * 0.3; this.targetY = height * 0.3; }
+                if (this.group === 1) { this.targetX = width * 0.7; this.targetY = height * 0.4; }
+                if (this.group === 2) { this.targetX = width * 0.5; this.targetY = height * 0.8; }
+
+                // Gently pull toward cluster center
+                this.vx += (this.targetX - this.x) * 0.0005;
+                this.vy += (this.targetY - this.y) * 0.0005;
+
+                // Dampen velocity so they don't fly out of control
+                this.vx *= 0.98;
+                this.vy *= 0.98;
+
+                // Mouse interaction (repel)
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < 100) {
+                    this.vx -= (dx / dist) * 0.5;
+                    this.vy -= (dy / dist) * 0.5;
+                }
+
                 this.x += this.vx;
                 this.y += this.vy;
-                if (this.x < 0 || this.x > width) this.vx *= -1;
-                if (this.y < 0 || this.y > height) this.vy *= -1;
             }
+
             draw() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = '#38bdf8';
+                ctx.fillStyle = this.color;
                 ctx.fill();
+
+                // Draw Text
+                ctx.fillStyle = "#cbd5e1";
+                ctx.font = "12px Inter";
+                ctx.fillText(this.text, this.x + 10, this.y + 4);
             }
         }
 
-        function animate() {
-            ctx.clearRect(0, 0, width, height);
+        function initCanvas() {
+            // Canvas needs to match the parent container size exactly
+            const container = document.getElementById('view-skills');
+            width = canvas.width = container.clientWidth;
+            height = canvas.height = container.clientHeight;
             
-            for (let i = 0; i < particles.length; i++) {
-                particles[i].update();
-                particles[i].draw();
-                
-                for (let j = i; j < particles.length; j++) {
-                    let dx = particles[i].x - particles[j].x;
-                    let dy = particles[i].y - particles[j].y;
-                    let dist = Math.sqrt(dx * dx + dy * dy);
-                    
-                    if (dist < 120) {
-                        ctx.beginPath();
-                        ctx.strokeStyle = `rgba(56, 189, 248, ${1 - dist/120})`;
-                        ctx.lineWidth = 1;
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.stroke();
-                    }
-                }
-
-                if (mouse.x != null) {
-                    let dxMouse = particles[i].x - mouse.x;
-                    let dyMouse = particles[i].y - mouse.y;
-                    let distMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
-                    if (distMouse < 150) {
-                        ctx.beginPath();
-                        ctx.strokeStyle = `rgba(255, 255, 255, ${1 - distMouse/150})`;
-                        ctx.lineWidth = 1.5;
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(mouse.x, mouse.y);
-                        ctx.stroke();
-                    }
-                }
-            }
-            requestAnimationFrame(animate);
+            nodes = [];
+            skillData.forEach(data => nodes.push(new Node(data)));
         }
 
-        window.addEventListener('resize', initCanvas);
-        
-        // Mouse Tracking
+        function animateCanvas() {
+            if (document.getElementById('view-skills').classList.contains('active')) {
+                ctx.clearRect(0, 0, width, height);
+
+                // Draw connecting lines for nodes in the SAME group
+                for (let i = 0; i < nodes.length; i++) {
+                    for (let j = i + 1; j < nodes.length; j++) {
+                        if (nodes[i].group === nodes[j].group) {
+                            let dx = nodes[i].x - nodes[j].x;
+                            let dy = nodes[i].y - nodes[j].y;
+                            let dist = Math.sqrt(dx*dx + dy*dy);
+                            
+                            if (dist < 150) {
+                                ctx.beginPath();
+                                ctx.strokeStyle = nodes[i].color;
+                                ctx.globalAlpha = 1 - (dist / 150);
+                                ctx.lineWidth = 1;
+                                ctx.moveTo(nodes[i].x, nodes[i].y);
+                                ctx.lineTo(nodes[j].x, nodes[j].y);
+                                ctx.stroke();
+                                ctx.globalAlpha = 1.0;
+                            }
+                        }
+                    }
+                }
+
+                nodes.forEach(node => {
+                    node.update();
+                    node.draw();
+                });
+            }
+            requestAnimationFrame(animateCanvas);
+        }
+
+        // Track mouse/touch for interactive constellation
         window.addEventListener('mousemove', (e) => {
-            mouse.x = e.clientX;
-            mouse.y = e.clientY;
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = e.clientX - rect.left;
+            mouse.y = e.clientY - rect.top;
         });
-        window.addEventListener('mouseout', () => {
-            mouse.x = null;
-            mouse.y = null;
-        });
-
-        // Mobile Touch Tracking (Makes the background nodes react to touch!)
-        window.addEventListener('touchmove', (e) => {
-            mouse.x = e.touches[0].clientX;
-            mouse.y = e.touches[0].clientY;
-        }, { passive: true });
         
-        window.addEventListener('touchend', () => {
-            mouse.x = null;
-            mouse.y = null;
-        });
+        window.addEventListener('touchmove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = e.touches[0].clientX - rect.left;
+            mouse.y = e.touches[0].clientY - rect.top;
+        }, { passive: true });
 
-        initCanvas();
-        animate();
+        window.addEventListener('mouseout', () => { mouse.x = -1000; mouse.y = -1000; });
+        window.addEventListener('touchend', () => { mouse.x = -1000; mouse.y = -1000; });
+        window.addEventListener('resize', () => { if(skillsInitialized) initCanvas(); });
+
+        // Start animation loop
+        animateCanvas();
+
     </script>
 </body>
 </html>
