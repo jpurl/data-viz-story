@@ -23,15 +23,15 @@
         body, html {
             margin: 0;
             padding: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             background-color: var(--bg-dark);
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
-            overflow: hidden; /* Prevents body scrolling, acts like an app */
+            overflow: hidden; /* App-like feel */
         }
 
-        /* Subtle background grid */
+        /* Subtle grid background */
         body::before {
             content: '';
             position: absolute;
@@ -43,420 +43,452 @@
             z-index: -1;
         }
 
-        .app-container {
-            display: flex;
-            flex-direction: row;
+        /* 2x2 GRID LAYOUT */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 15px;
             width: 100%;
             height: 100%;
-            padding: clamp(10px, 2vw, 20px);
-            gap: clamp(10px, 2vw, 20px);
+            padding: 15px;
         }
 
-        /* --- LEFT SIDEBAR (Profile) --- */
-        .sidebar {
-            flex: 0 0 320px;
+        .quadrant {
             background: var(--panel-bg);
             backdrop-filter: blur(12px);
             border-radius: 20px;
             border: 1px solid var(--border);
-            padding: 30px 20px;
+            position: relative;
             display: flex;
             flex-direction: column;
-            overflow-y: auto;
+            overflow: hidden;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
+        .quad-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin: 0 0 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+        .instruction { font-size: 0.75rem; color: var(--accent-blue); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* --- QUADRANT 1: PROFILE --- */
+        .profile-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+        }
         .profile-img {
-            width: 120px;
-            height: 120px;
+            width: 130px;
+            height: 130px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-            margin: 0 auto 20px auto;
+            object-fit: cover;
+            border: 4px solid var(--accent-blue);
+            box-shadow: 0 10px 25px rgba(56, 189, 248, 0.3);
+            margin-bottom: 15px;
+        }
+        .profile-content h1 { margin: 0; font-size: 2rem; font-weight: 800; }
+        .profile-content h2 { margin: 5px 0 15px 0; font-size: 1.1rem; color: var(--accent-purple); font-weight: 600; }
+        .profile-content p { font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); font-weight: 300; max-width: 90%; }
+
+        /* --- QUADRANT 2: EXPERIENCE ARC --- */
+        .arc-viewport {
+            flex: 1;
+            perspective: 800px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
-            border: 4px solid var(--bg-dark);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-        }
-
-        .sidebar h1 { margin: 0; font-size: 1.8rem; text-align: center; font-weight: 800; }
-        .sidebar h2 { margin: 5px 0 20px 0; font-size: 1rem; text-align: center; color: var(--accent-blue); font-weight: 600; }
-        .sidebar p { font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); font-weight: 300; }
-
-        .nav-menu {
-            margin-top: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .nav-btn {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: left;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .nav-btn:hover { background: rgba(255,255,255,0.1); }
-        .nav-btn.active {
-            background: var(--accent-blue);
-            border-color: var(--accent-blue);
-            color: var(--bg-dark);
-            box-shadow: 0 5px 15px rgba(56, 189, 248, 0.4);
-        }
-
-        /* --- RIGHT STAGE (Interactive Content) --- */
-        .stage {
-            flex: 1;
             position: relative;
-            background: var(--panel-bg);
-            backdrop-filter: blur(12px);
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            overflow: hidden;
+            cursor: grab;
+            touch-action: none;
         }
-
-        .view-section {
+        .arc-viewport:active { cursor: grabbing; }
+        .arc-scene {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.4s ease;
-            display: flex;
-            flex-direction: column;
-            padding: 30px;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
         }
-
-        .view-section.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .section-header {
-            margin: 0 0 20px 0;
-            font-size: 2rem;
-            font-weight: 800;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .instruction { font-size: 0.9rem; color: var(--accent-blue); font-weight: 400; text-transform: uppercase; letter-spacing: 1px; }
-
-        /* 1. ROLODEX (Experience) */
-        .rolodex {
-            flex: 1;
-            display: flex;
-            gap: 30px;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            align-items: center;
-            padding: 20px 0;
-            /* Hide scrollbar for clean look */
-            -ms-overflow-style: none; 
-            scrollbar-width: none;
-        }
-        .rolodex::-webkit-scrollbar { display: none; }
-
-        .role-card {
-            min-width: 350px;
-            height: 90%;
-            background: rgba(15, 23, 42, 0.8);
+        .arc-card {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 85%;
+            max-width: 400px;
+            background: rgba(15, 23, 42, 0.9);
             border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 30px;
-            scroll-snap-align: center;
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.3s;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+            border-left: 4px solid var(--accent-blue);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            /* Transform set by JS */
+            transform-origin: center center;
+            transition: border-color 0.2s;
         }
+        .arc-card:hover { border-left-color: var(--accent-purple); }
+        .arc-card h3 { margin: 0; font-size: 1.2rem; color: var(--text-main); }
+        .arc-card h4 { margin: 5px 0 10px 0; font-size: 0.9rem; color: var(--accent-blue); }
+        .arc-card .date { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
 
-        .role-card:hover { transform: translateY(-5px); }
-        .role-company { font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin: 0; }
-        .role-title { font-size: 1.1rem; color: var(--accent-blue); margin: 5px 0 15px 0; font-weight: 600; }
-        .role-date { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px; font-weight: 600; text-transform: uppercase; }
-        .role-desc { font-size: 1rem; color: #cbd5e1; line-height: 1.6; overflow-y: auto; }
-
-        /* 2. CONSTELLATION (Skills) */
+        /* --- QUADRANT 3: SKILLS CONSTELLATION --- */
         #skills-canvas {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
         }
         .legend {
             position: absolute;
-            bottom: 30px; left: 30px;
-            background: rgba(0,0,0,0.5);
-            padding: 15px; border-radius: 10px;
-            font-size: 0.9rem; pointer-events: none;
+            bottom: 20px; left: 20px;
+            background: rgba(0,0,0,0.6);
+            padding: 10px 15px; border-radius: 10px;
+            font-size: 0.8rem; pointer-events: none;
         }
-        .legend-item { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
-        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
 
-        /* 3. STACK (Publications) */
-        .stack-container {
+        /* --- QUADRANT 4: PUBLICATIONS STACK --- */
+        .stack-viewport {
             flex: 1;
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
-            perspective: 1000px;
         }
-        
         .paper {
             position: absolute;
-            width: 100%;
-            max-width: 500px;
+            width: 85%;
             background: #f8fafc;
             color: var(--bg-dark);
-            padding: 40px 30px;
-            border-radius: 12px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            padding: 25px 20px;
+            border-radius: 10px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
             cursor: pointer;
-            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
             user-select: none;
-            border-top: 5px solid var(--accent-blue);
+            border-top: 4px solid var(--accent-blue);
         }
-
-        /* The CSS Magic that creates the visual stack automatically based on DOM order */
         .paper:nth-last-child(1) { transform: translateY(0) scale(1); opacity: 1; z-index: 10; }
-        .paper:nth-last-child(2) { transform: translateY(20px) scale(0.95); opacity: 0.8; z-index: 9; }
-        .paper:nth-last-child(3) { transform: translateY(40px) scale(0.9); opacity: 0.6; z-index: 8; }
-        .paper:nth-last-child(n+4) { transform: translateY(60px) scale(0.85); opacity: 0; z-index: 7; pointer-events: none; }
-
-        /* Animation class applied via JS */
+        .paper:nth-last-child(2) { transform: translateY(15px) scale(0.95); opacity: 0.8; z-index: 9; }
+        .paper:nth-last-child(3) { transform: translateY(30px) scale(0.9); opacity: 0.6; z-index: 8; }
+        .paper:nth-last-child(n+4) { transform: translateY(45px) scale(0.85); opacity: 0; z-index: 7; pointer-events: none; }
+        
         .paper.swipe-out {
-            transform: translateX(120%) translateY(-50px) rotate(15deg) scale(1) !important;
+            transform: translateX(120%) translateY(-30px) rotate(15deg) scale(1) !important;
             opacity: 0 !important;
             pointer-events: none;
         }
+        .paper h3 { margin: 0 0 8px 0; font-size: 1rem; font-weight: 800; }
+        .paper p { margin: 0; font-size: 0.85rem; color: #475569; line-height: 1.4; }
+        .paper-year { position: absolute; top: 10px; right: 15px; font-weight: 800; font-size: 0.8rem; color: var(--accent-blue); }
 
-        .paper h3 { margin: 0 0 10px 0; font-size: 1.3rem; font-weight: 800; }
-        .paper p { margin: 0; font-size: 1rem; color: #475569; line-height: 1.5; }
-        .paper-year { position: absolute; top: 15px; right: 20px; font-weight: 800; color: var(--accent-blue); }
+        /* --- MODAL OVERLAY --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        
+        .modal-content {
+            background: var(--panel-bg);
+            border: 1px solid var(--accent-blue);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            padding: 40px;
+            position: relative;
+            transform: translateY(30px);
+            transition: transform 0.3s;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.8);
+        }
+        .modal-overlay.active .modal-content { transform: translateY(0); }
+        
+        .close-btn {
+            position: absolute;
+            top: 20px; right: 20px;
+            background: none; border: none;
+            color: var(--text-muted);
+            font-size: 2rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-btn:hover { color: var(--accent-red); }
+        
+        #modal-company { margin: 0; font-size: 2rem; font-weight: 800; color: var(--accent-blue); }
+        #modal-title { margin: 5px 0 20px 0; font-size: 1.2rem; color: var(--text-main); }
+        #modal-body { font-size: 1rem; line-height: 1.6; color: #cbd5e1; }
+        #modal-body ul { padding-left: 20px; }
+        #modal-body li { margin-bottom: 10px; }
 
         /* --- MOBILE RESPONSIVENESS --- */
-        @media (max-width: 900px) {
-            .app-container { flex-direction: column; }
-            .sidebar { 
-                flex: 0 0 auto; 
-                padding: 20px; 
-                max-height: 40vh; /* Limits height on mobile */
+        @media (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+                height: auto;
+                overflow-y: auto;
             }
-            .nav-menu { flex-direction: row; flex-wrap: wrap; margin-top: 20px; }
-            .nav-btn { flex: 1; text-align: center; justify-content: center; padding: 10px; font-size: 0.9rem;}
-            
-            .role-card { min-width: 85%; }
-            .section-header { font-size: 1.5rem; flex-direction: column; align-items: flex-start; gap: 5px; }
-            .paper { max-width: 90%; padding: 30px 20px;}
+            body { overflow-y: auto; }
+            .quadrant { height: 450px; } /* Fixed height for each section so they stack nicely */
         }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
+    <!-- MODAL -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">×</button>
+            <h1 id="modal-company">Company</h1>
+            <h2 id="modal-title">Title</h2>
+            <div id="modal-body">Details go here...</div>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD (2x2 Grid) -->
+    <div class="dashboard">
         
-        <!-- SIDEBAR -->
-        <aside class="sidebar">
-            <div class="profile-img">👨‍💻</div>
-            <h1>Justin D. Purl</h1>
-            <h2>Head of People Systems & Analytics @ Archer</h2>
-            <p>I manage complex projects requiring knowledge of research methodology and statistics. I innovate when information is sparse, manipulating data through SAS, R, and custom AI agents.</p>
-            
-            <nav class="nav-menu">
-                <button class="nav-btn active" onclick="switchTab('experience')">
-                    Experience <span>➔</span>
-                </button>
-                <button class="nav-btn" onclick="switchTab('skills')">
-                    Skills Constellation <span>➔</span>
-                </button>
-                <button class="nav-btn" onclick="switchTab('publications')">
-                    Publications <span>➔</span>
-                </button>
-            </nav>
-        </aside>
+        <!-- Quadrant 1: Profile -->
+        <div class="quadrant">
+            <div class="profile-content">
+                <!-- IMPORTANT: Rename your uploaded image to 'profile.jpg' -->
+                <img src="profile.jpg" alt="Justin D. Purl" class="profile-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzNlNGE1YyIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1zaXplPSI1MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2ZmZiI+👨‍💻PC90ZXh0Pjwvc3ZnPg=='">
+                <h1>Justin D. Purl</h1>
+                <h2>Head of People Systems & Analytics @ Archer</h2>
+                <p>I manage complex projects requiring deep knowledge of research methodology and statistics. I leverage advanced analytics, HRIS design, and custom AI agents to turn sparse data into highly actionable insights.</p>
+            </div>
+        </div>
 
-        <!-- MAIN STAGE -->
-        <main class="stage">
-            
-            <!-- EXPERIENCE VIEW -->
-            <section class="view-section active" id="view-experience">
-                <h1 class="section-header">
-                    Job History
-                    <span class="instruction">Swipe to explore ↔</span>
-                </h1>
-                
-                <div class="rolodex">
-                    <div class="role-card">
-                        <h2 class="role-company">Archer</h2>
-                        <h3 class="role-title">Head of People Systems & Analytics</h3>
-                        <div class="role-date">Apr 2026 - Present</div>
-                        <div class="role-desc">Transformed People Analytics and the way we partner with HRBPs. Streamlined Workday and Greenhouse. Centralized workforce planning aligning Finance, HRBP, and business leaders.</div>
-                    </div>
-                    <div class="role-card">
-                        <h2 class="role-company">Gilead Sciences</h2>
-                        <h3 class="role-title">Assoc. Director of People Analytics</h3>
-                        <div class="role-date">Apr 2025 - Apr 2026</div>
-                        <div class="role-desc">Managed offshore resources developing custom AI agents for HR. Reduced delivery time from 2 years to 3 months. Quantified the impact of comp on retention.</div>
-                    </div>
-                    <div class="role-card">
-                        <h2 class="role-company">Zscaler</h2>
-                        <h3 class="role-title">Head of People Analytics & Insights</h3>
-                        <div class="role-date">Apr 2024 - Apr 2025</div>
-                        <div class="role-desc">Set strategy for 7 analytics resources. Designed sentiment programs, developed forecast models of attrition with Finance, and aggregated D&I benchmarking.</div>
-                    </div>
-                    <div class="role-card">
-                        <h2 class="role-company">TikTok (ByteDance)</h2>
-                        <h3 class="role-title">Head of Global People Analytics</h3>
-                        <div class="role-date">Mar 2022 - Apr 2024</div>
-                        <div class="role-desc">Backed HRBPs with world-class analytics. Identified leadership behaviors using NLP. Streamlined interview processes by quantifying ROI across multiple interview stages.</div>
-                    </div>
-                    <div class="role-card">
-                        <h2 class="role-company">Google</h2>
-                        <h3 class="role-title">Senior People Analyst</h3>
-                        <div class="role-date">Aug 2019 - Mar 2022</div>
-                        <div class="role-desc">Lead Hiring Analyst managing junior analysts through global soft-skills and job-knowledge assessments. Developed survival analysis models for attrition.</div>
-                    </div>
-                    <div class="role-card">
-                        <h2 class="role-company">HumRRO</h2>
-                        <h3 class="role-title">Research Scientist</h3>
-                        <div class="role-date">Sept 2015 - Aug 2019</div>
-                        <div class="role-desc">Led teams on complex analytic projects (NLP, Psychometrics). Conducted research on insider threats and job analysis.</div>
-                    </div>
+        <!-- Quadrant 2: Experience Arc -->
+        <div class="quadrant" id="q-arc">
+            <div class="quad-title">
+                Experience Timeline
+                <span class="instruction">Scroll / Drag to traverse time</span>
+            </div>
+            <div class="arc-viewport" id="arc-viewport">
+                <div class="arc-scene" id="arc-scene">
+                    <!-- Populated by JS -->
                 </div>
-            </section>
+            </div>
+        </div>
 
-            <!-- SKILLS VIEW -->
-            <section class="view-section" id="view-skills">
-                <h1 class="section-header" style="position: relative; z-index: 10;">
-                    Skills Ecosystem
-                    <span class="instruction">Hover & Interact 🖱️</span>
-                </h1>
-                
-                <canvas id="skills-canvas"></canvas>
-                
-                <div class="legend">
-                    <div class="legend-item"><div class="dot" style="background: #38bdf8;"></div> Tech & Tools</div>
-                    <div class="legend-item"><div class="dot" style="background: #c084fc;"></div> Stats & Methods</div>
-                    <div class="legend-item"><div class="dot" style="background: #34d399;"></div> HR & Strategy</div>
+        <!-- Quadrant 3: Skills -->
+        <div class="quadrant">
+            <div class="quad-title">
+                Skills Ecosystem
+                <span class="instruction">Hover & Interact</span>
+            </div>
+            <canvas id="skills-canvas"></canvas>
+            <div class="legend">
+                <div class="legend-item"><div class="dot" style="background: #38bdf8;"></div> Tech & Tools</div>
+                <div class="legend-item"><div class="dot" style="background: #c084fc;"></div> Stats & Methods</div>
+                <div class="legend-item"><div class="dot" style="background: #34d399;"></div> HR & Strategy</div>
+            </div>
+        </div>
+
+        <!-- Quadrant 4: Publications -->
+        <div class="quadrant">
+            <div class="quad-title">
+                Select Publications
+                <span class="instruction">Tap top card to cycle</span>
+            </div>
+            <div class="stack-viewport" id="pub-stack">
+                <div class="paper">
+                    <div class="paper-year">2017</div>
+                    <h3>A computational model of self-efficacy’s various effects on performance</h3>
+                    <p>Vancouver, J. B., & Purl, J. D. <br>Journal of Applied Psychology, 102(4), 599-616.</p>
                 </div>
-            </section>
-
-            <!-- PUBLICATIONS VIEW -->
-            <section class="view-section" id="view-publications">
-                <h1 class="section-header">
-                    Select Publications
-                    <span class="instruction">Tap top card to cycle 👇</span>
-                </h1>
-                
-                <div class="stack-container" id="pub-stack">
-                    <!-- Cards are reversed in HTML so the last child is the "top" card -->
-                    <div class="paper">
-                        <div class="paper-year">2017</div>
-                        <h3>A computational model of self-efficacy’s various effects on performance</h3>
-                        <p>Vancouver, J. B., & Purl, J. D. <br><br>Journal of Applied Psychology, 102(4), 599-616.</p>
-                    </div>
-                    <div class="paper">
-                        <div class="paper-year">2019</div>
-                        <h3>Turnover modeling and event history analysis</h3>
-                        <p>McCloy, R., Purl, J., & Banjanovic, E. <br><br>Industrial and Organizational Psychology: Perspectives on Science and Practice.</p>
-                    </div>
-                    <div class="paper">
-                        <div class="paper-year">2022</div>
-                        <h3>Demands, resources, well-being and strain: Meta-analyzing moderator effects</h3>
-                        <p>Fila, M. J., Purl, J., & Jang, R. <br><br>Applied Research in Quality of Life, 1-28.</p>
-                    </div>
-                    <div class="paper">
-                        <div class="paper-year">2022</div>
-                        <h3>The dynamic nature of insider threat indicators</h3>
-                        <p>Greitzer, F. L., Purl, J. <br><br>SN Computer Science, 3(2), 1-15.</p>
-                    </div>
-                    <div class="paper">
-                        <div class="paper-year">2022</div>
-                        <h3>Advances in game-like personality assessment</h3>
-                        <p>Harman, J. L., & Purl, J. <br><br>Trends in Psychology, 1-15.</p>
-                    </div>
+                <div class="paper">
+                    <div class="paper-year">2019</div>
+                    <h3>Turnover modeling and event history analysis</h3>
+                    <p>McCloy, R., Purl, J., & Banjanovic, E. <br>Industrial & Org. Psychology.</p>
                 </div>
-            </section>
+                <div class="paper">
+                    <div class="paper-year">2021</div>
+                    <h3>Expert judgments to inform bayesian models of insider threat risk</h3>
+                    <p>Greitzer, F. L., Purl, J., et al. <br>JoWUA, 12(2), 3-47.</p>
+                </div>
+                <div class="paper">
+                    <div class="paper-year">2022</div>
+                    <h3>Demands, resources, well-being and strain: Meta-analyzing moderator effects</h3>
+                    <p>Fila, M. J., Purl, J., & Jang, R. <br>Applied Research in Quality of Life.</p>
+                </div>
+                <div class="paper">
+                    <div class="paper-year">2022</div>
+                    <h3>Advances in game-like personality assessment</h3>
+                    <p>Harman, J. L., & Purl, J. <br>Trends in Psychology, 1-15.</p>
+                </div>
+            </div>
+        </div>
 
-        </main>
     </div>
 
     <script>
-        // --- TAB SWITCHING LOGIC ---
-        function switchTab(tabId) {
-            // Update Buttons
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+        /* =========================================
+           1. EXPERIENCE ARC (TIME-BASED 3D ENGINE)
+           ========================================= */
+        const jobs = [
+            { id: 0, company: "Archer", title: "Head of People Systems & Analytics", date: "Apr 2026 - Present", monthsPrior: 0, 
+              bullets: ["Streamlined Workday and Greenhouse via interaction playbooks based on user journeys.", "Centralized workforce planning into a single dashboard aligning Finance, HRBP, and business leaders.", "Relaunched position management, comp planning, and recruiting templates."] },
+            { id: 1, company: "Gilead Sciences", title: "Assoc. Director of People Analytics", date: "Apr 2025 - Apr 2026", monthsPrior: 6, 
+              bullets: ["Managed 5-10 off-shore resources developing a custom agent to support an AI chatbot.", "Streamlined project management to increase delivery speed from 2 years to 3 months.", "Quantified the impact of compensation on employee retention and diagnosed drop-offs in underrepresented talent."] },
+            { id: 2, company: "Zscaler", title: "Head of People Analytics & Insights", date: "Apr 2024 - Apr 2025", monthsPrior: 12, 
+              bullets: ["Set strategy and vision for 7 analytics resources across the HR function.", "Designed and executed sentiment programs in partnership with the Culture team.", "Developed a forecast model of attrition with Finance and aggregated benchmark information to form effective DEI aspirations."] },
+            { id: 3, company: "TikTok", title: "Head of Global People Analytics", date: "Mar 2022 - Apr 2024", monthsPrior: 12, 
+              bullets: ["Identified key leadership behaviors from Natural Language Processing of performance review text.", "Streamlined interview processes by quantifying the ROI across multiple interview stages.", "Forecasted headcount growth accounting for fluctuations in the labor market through a depressed macro economy."] },
+            { id: 4, company: "Google", title: "Senior People Analyst", date: "Aug 2019 - Mar 2022", monthsPrior: 25, 
+              bullets: ["Lead Hiring Analyst: Developed advanced scoring methodologies globally to optimize validity and equity.", "Lead Innovation Analyst: Upgraded attrition modeling programs to incorporate survival analysis.", "Lead Productivity Analyst: Developed collaboration metrics to support evaluation of work-from-anywhere initiatives."] },
+            { id: 5, company: "HumRRO", title: "Research Scientist", date: "Sept 2015 - Aug 2019", monthsPrior: 31, 
+              bullets: ["Project Director: Led small teams on projects requiring complex analytic (NLP, Psychometrics) and programming experience.", "Innovation: Planned and executed development of an ontology of insider threat.", "Conducted psychometric analysis to support a large-scale educational testing program."] }
+        ];
 
-            // Update Views
-            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
-            document.getElementById('view-' + tabId).classList.add('active');
+        const scene = document.getElementById('arc-scene');
+        const viewport = document.getElementById('arc-viewport');
+        
+        // Physics variables
+        let currentScroll = 0;
+        let targetScroll = 0;
+        const SCROLL_MULTIPLIER = 12; // Controls how much distance a single month equals
+        let maxScroll = 0;
 
-            // Resize canvas if skills tab is opened
-            if(tabId === 'skills' && !skillsInitialized) {
-                initCanvas();
-                skillsInitialized = true;
-            }
+        // Build the cards and calculate their exact physical distance based on time
+        let cumulativeDistance = 0;
+        jobs.forEach((job) => {
+            cumulativeDistance += job.monthsPrior * SCROLL_MULTIPLIER;
+            job.basePos = cumulativeDistance;
+            maxScroll = cumulativeDistance; // Max scroll stops at the oldest job
+
+            const el = document.createElement('div');
+            el.className = 'arc-card';
+            el.innerHTML = `
+                <h3>${job.company}</h3>
+                <h4>${job.title}</h4>
+                <div class="date">${job.date}</div>
+            `;
+            el.onclick = () => openModal(job);
+            job.element = el;
+            scene.appendChild(el);
+        });
+
+        // The physics loop
+        function renderArc() {
+            // Easing for smooth scrolling/dragging
+            currentScroll += (targetScroll - currentScroll) * 0.1;
+
+            jobs.forEach(job => {
+                const diff = job.basePos - currentScroll;
+                const absDiff = Math.abs(diff);
+
+                // Math to create a physical "Arc" going backwards into the screen
+                const yPos = diff * 0.8; // Vertical spread
+                const zPos = -absDiff * 0.6; // Pushes unselected cards deep into the background (conserves space)
+                const rx = diff * 0.25; // Tilts unselected cards so only top is flat/readable
+                
+                // Fade out cards that are too far away
+                const opacity = Math.max(1 - (absDiff / 400), 0);
+                const pointer = opacity > 0.5 ? 'auto' : 'none';
+
+                job.element.style.transform = `translate(-50%, calc(-50% + ${yPos}px)) translateZ(${zPos}px) rotateX(${rx}deg)`;
+                job.element.style.opacity = opacity;
+                job.element.style.pointerEvents = pointer;
+            });
+
+            requestAnimationFrame(renderArc);
         }
 
-        // --- PUBLICATION STACK LOGIC ---
-        const stack = document.getElementById('pub-stack');
+        // Input handling for the Arc
+        viewport.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            targetScroll += e.deltaY * 0.5;
+            targetScroll = Math.max(0, Math.min(targetScroll, maxScroll));
+        }, { passive: false });
+
+        let isDragging = false;
+        let startY = 0;
+        let lastTargetScroll = 0;
+
+        viewport.addEventListener('pointerdown', (e) => {
+            isDragging = true;
+            startY = e.clientY;
+            lastTargetScroll = targetScroll;
+        });
         
+        window.addEventListener('pointermove', (e) => {
+            if (!isDragging) return;
+            const deltaY = startY - e.clientY;
+            targetScroll = lastTargetScroll + (deltaY * 2);
+            targetScroll = Math.max(0, Math.min(targetScroll, maxScroll));
+        });
+        
+        window.addEventListener('pointerup', () => isDragging = false);
+
+        renderArc(); // Start loop
+
+        /* =========================================
+           2. MODAL LOGIC
+           ========================================= */
+        function openModal(job) {
+            document.getElementById('modal-company').innerText = job.company;
+            document.getElementById('modal-title').innerText = job.title;
+            const list = job.bullets.map(b => `<li>${b}</li>`).join('');
+            document.getElementById('modal-body').innerHTML = `<ul>${list}</ul>`;
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        /* =========================================
+           3. PUBLICATION STACK LOGIC
+           ========================================= */
+        const stack = document.getElementById('pub-stack');
         stack.addEventListener('click', function(e) {
-            // Only trigger if clicking a paper (and specifically the top one, which is lastElementChild)
             const topCard = stack.lastElementChild;
-            
-            if (topCard) {
-                // Add the swipe out animation class
+            if (topCard && topCard.classList.contains('paper')) {
                 topCard.classList.add('swipe-out');
-                
-                // Wait for CSS animation to finish (500ms), then move it to the back of the DOM
                 setTimeout(() => {
                     topCard.classList.remove('swipe-out');
-                    stack.prepend(topCard); // Moves it to the bottom of the stack
+                    stack.prepend(topCard); 
                 }, 400); 
             }
         });
 
-        // --- SKILLS CONSTELLATION LOGIC ---
+        /* =========================================
+           4. SKILLS CONSTELLATION LOGIC
+           ========================================= */
         const canvas = document.getElementById('skills-canvas');
         const ctx = canvas.getContext('2d');
         let width, height;
         let nodes = [];
         let mouse = { x: -1000, y: -1000 };
-        let skillsInitialized = false;
 
         const skillData = [
-            // Tech & Tools (Blue) - Target Group 0
-            { text: "R", group: 0, color: "#38bdf8" },
-            { text: "Python", group: 0, color: "#38bdf8" },
-            { text: "SAS", group: 0, color: "#38bdf8" },
-            { text: "Databricks", group: 0, color: "#38bdf8" },
-            { text: "Snowflake", group: 0, color: "#38bdf8" },
-            { text: "Workday", group: 0, color: "#38bdf8" },
-            { text: "Tableau", group: 0, color: "#38bdf8" },
-            // Stats & Methods (Purple) - Target Group 1
-            { text: "Psychometrics", group: 1, color: "#c084fc" },
-            { text: "IRT", group: 1, color: "#c084fc" },
-            { text: "Bayesian", group: 1, color: "#c084fc" },
-            { text: "Math Modeling", group: 1, color: "#c084fc" },
+            { text: "R", group: 0, color: "#38bdf8" }, { text: "Python", group: 0, color: "#38bdf8" },
+            { text: "SAS", group: 0, color: "#38bdf8" }, { text: "Databricks", group: 0, color: "#38bdf8" },
+            { text: "Snowflake", group: 0, color: "#38bdf8" }, { text: "Workday", group: 0, color: "#38bdf8" },
+            { text: "Psychometrics", group: 1, color: "#c084fc" }, { text: "IRT", group: 1, color: "#c084fc" },
+            { text: "Bayesian Models", group: 1, color: "#c084fc" }, { text: "Survival Analysis", group: 1, color: "#c084fc" },
             { text: "Meta-analysis", group: 1, color: "#c084fc" },
-            { text: "Survival Analysis", group: 1, color: "#c084fc" },
-            // HR & Strategy (Green) - Target Group 2
-            { text: "People Analytics", group: 2, color: "#34d399" },
-            { text: "AI Prompt Eng", group: 2, color: "#34d399" },
-            { text: "Turnover", group: 2, color: "#34d399" },
-            { text: "Selection", group: 2, color: "#34d399" },
-            { text: "Insider Threat", group: 2, color: "#34d399" },
-            { text: "Comp Modeling", group: 2, color: "#34d399" }
+            { text: "People Analytics", group: 2, color: "#34d399" }, { text: "AI Prompt Eng", group: 2, color: "#34d399" },
+            { text: "Turnover/Retention", group: 2, color: "#34d399" }, { text: "Comp Modeling", group: 2, color: "#34d399" }
         ];
 
         class Node {
@@ -464,118 +496,68 @@
                 this.text = data.text;
                 this.group = data.group;
                 this.color = data.color;
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 1;
-                this.vy = (Math.random() - 0.5) * 1;
-                this.radius = 6;
-                this.targetX = 0;
-                this.targetY = 0;
+                this.x = Math.random() * width; this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5); this.vy = (Math.random() - 0.5);
             }
-
             update() {
-                // Set target centers based on group to create clusters
-                if (this.group === 0) { this.targetX = width * 0.3; this.targetY = height * 0.3; }
-                if (this.group === 1) { this.targetX = width * 0.7; this.targetY = height * 0.4; }
-                if (this.group === 2) { this.targetX = width * 0.5; this.targetY = height * 0.8; }
+                // Determine gravity wells based on container size
+                const tx = this.group === 0 ? width * 0.3 : this.group === 1 ? width * 0.7 : width * 0.5;
+                const ty = this.group === 0 ? height * 0.3 : this.group === 1 ? height * 0.4 : height * 0.7;
 
-                // Gently pull toward cluster center
-                this.vx += (this.targetX - this.x) * 0.0005;
-                this.vy += (this.targetY - this.y) * 0.0005;
+                this.vx += (tx - this.x) * 0.0008;
+                this.vy += (ty - this.y) * 0.0008;
+                this.vx *= 0.95; this.vy *= 0.95;
 
-                // Dampen velocity so they don't fly out of control
-                this.vx *= 0.98;
-                this.vy *= 0.98;
-
-                // Mouse interaction (repel)
-                let dx = mouse.x - this.x;
-                let dy = mouse.y - this.y;
+                // Mouse repel
+                let dx = mouse.x - this.x, dy = mouse.y - this.y;
                 let dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist < 100) {
-                    this.vx -= (dx / dist) * 0.5;
-                    this.vy -= (dy / dist) * 0.5;
-                }
+                if (dist < 100) { this.vx -= (dx / dist) * 1; this.vy -= (dy / dist) * 1; }
 
-                this.x += this.vx;
-                this.y += this.vy;
+                this.x += this.vx; this.y += this.vy;
             }
-
             draw() {
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.fill();
-
-                // Draw Text
-                ctx.fillStyle = "#cbd5e1";
-                ctx.font = "12px Inter";
-                ctx.fillText(this.text, this.x + 10, this.y + 4);
+                ctx.arc(this.x, this.y, 5, 0, Math.PI * 2);
+                ctx.fillStyle = this.color; ctx.fill();
+                ctx.fillStyle = "#cbd5e1"; ctx.font = "11px Inter";
+                ctx.fillText(this.text, this.x + 8, this.y + 4);
             }
         }
 
         function initCanvas() {
-            // Canvas needs to match the parent container size exactly
-            const container = document.getElementById('view-skills');
-            width = canvas.width = container.clientWidth;
-            height = canvas.height = container.clientHeight;
-            
-            nodes = [];
-            skillData.forEach(data => nodes.push(new Node(data)));
+            width = canvas.width = canvas.parentElement.clientWidth;
+            height = canvas.height = canvas.parentElement.clientHeight;
+            nodes = skillData.map(d => new Node(d));
         }
 
         function animateCanvas() {
-            if (document.getElementById('view-skills').classList.contains('active')) {
-                ctx.clearRect(0, 0, width, height);
-
-                // Draw connecting lines for nodes in the SAME group
-                for (let i = 0; i < nodes.length; i++) {
-                    for (let j = i + 1; j < nodes.length; j++) {
-                        if (nodes[i].group === nodes[j].group) {
-                            let dx = nodes[i].x - nodes[j].x;
-                            let dy = nodes[i].y - nodes[j].y;
-                            let dist = Math.sqrt(dx*dx + dy*dy);
-                            
-                            if (dist < 150) {
-                                ctx.beginPath();
-                                ctx.strokeStyle = nodes[i].color;
-                                ctx.globalAlpha = 1 - (dist / 150);
-                                ctx.lineWidth = 1;
-                                ctx.moveTo(nodes[i].x, nodes[i].y);
-                                ctx.lineTo(nodes[j].x, nodes[j].y);
-                                ctx.stroke();
-                                ctx.globalAlpha = 1.0;
-                            }
+            ctx.clearRect(0, 0, width, height);
+            for (let i = 0; i < nodes.length; i++) {
+                for (let j = i + 1; j < nodes.length; j++) {
+                    if (nodes[i].group === nodes[j].group) {
+                        let dx = nodes[i].x - nodes[j].x, dy = nodes[i].y - nodes[j].y;
+                        let dist = Math.sqrt(dx*dx + dy*dy);
+                        if (dist < 120) {
+                            ctx.beginPath(); ctx.strokeStyle = nodes[i].color;
+                            ctx.globalAlpha = 1 - (dist / 120); ctx.lineWidth = 1;
+                            ctx.moveTo(nodes[i].x, nodes[i].y); ctx.lineTo(nodes[j].x, nodes[j].y);
+                            ctx.stroke(); ctx.globalAlpha = 1.0;
                         }
                     }
                 }
-
-                nodes.forEach(node => {
-                    node.update();
-                    node.draw();
-                });
+                nodes[i].update(); nodes[i].draw();
             }
             requestAnimationFrame(animateCanvas);
         }
 
-        // Track mouse/touch for interactive constellation
-        window.addEventListener('mousemove', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            mouse.x = e.clientX - rect.left;
-            mouse.y = e.clientY - rect.top;
+        canvas.parentElement.addEventListener('mousemove', e => {
+            const r = canvas.getBoundingClientRect();
+            mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top;
         });
+        canvas.parentElement.addEventListener('mouseout', () => { mouse.x = -1000; });
         
-        window.addEventListener('touchmove', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            mouse.x = e.touches[0].clientX - rect.left;
-            mouse.y = e.touches[0].clientY - rect.top;
-        }, { passive: true });
-
-        window.addEventListener('mouseout', () => { mouse.x = -1000; mouse.y = -1000; });
-        window.addEventListener('touchend', () => { mouse.x = -1000; mouse.y = -1000; });
-        window.addEventListener('resize', () => { if(skillsInitialized) initCanvas(); });
-
-        // Start animation loop
-        animateCanvas();
+        window.addEventListener('resize', initCanvas);
+        initCanvas(); animateCanvas();
 
     </script>
 </body>
