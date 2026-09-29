@@ -26,7 +26,6 @@
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
-            /* overflow-x: clip prevents horizontal scrolling without breaking position: sticky */
             overflow-x: clip; 
         }
 
@@ -42,11 +41,13 @@
             pointer-events: none; z-index: -1;
         }
 
+        .page-wrapper { overflow-x: hidden; width: 100%; min-height: 100vh; }
+
         /* --- SPLIT SCREEN ARCHITECTURE --- */
         .layout {
             display: flex;
             flex-direction: row;
-            align-items: flex-start; /* CRITICAL: Allows left-pane to be sticky */
+            align-items: flex-start;
             min-height: 100vh;
             max-width: 1500px;
             margin: 0 auto;
@@ -87,14 +88,21 @@
         h2 { margin: 0 0 20px 0; font-size: 1.05rem; color: var(--accent-blue); font-weight: 500; line-height: 1.5; }
         p.bio { font-size: 0.9rem; line-height: 1.7; color: #cbd5e1; font-weight: 300; margin-bottom: 25px; }
 
-        .interests {
-            display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: auto;
-        }
+        .interests { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 25px; }
         .tag {
             font-size: 0.75rem; font-weight: 600; color: var(--text-muted);
             padding: 6px 12px; background: rgba(255,255,255,0.03);
             border: 1px solid var(--border-subtle); border-radius: 20px;
         }
+
+        .linkedin-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            background: #0A66C2; color: #ffffff; text-decoration: none;
+            font-size: 0.9rem; font-weight: 600; padding: 12px 20px; border-radius: 12px;
+            transition: background 0.2s, transform 0.2s; margin-bottom: auto;
+        }
+        .linkedin-btn:hover { background: #004182; transform: translateY(-2px); }
+        .linkedin-btn svg { width: 18px; height: 18px; fill: currentColor; }
 
         .nav-links { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; }
         .nav-links a {
@@ -124,55 +132,23 @@
         }
 
         /* --- EXPERIENCE TIMELINE --- */
-        .timeline-layout {
-            position: relative;
-            display: flex;
-            width: 100%;
-        }
-
-        .timeline-graphics {
-            width: 130px; /* Space for the line and dates */
-            position: relative;
-            flex-shrink: 0;
-        }
-
-        #tl-canvas {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-        }
-
-        .cards-column {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 20px; /* Standard visual gap between jobs */
-        }
+        .timeline-layout { position: relative; display: flex; width: 100%; }
+        .timeline-graphics { width: 130px; position: relative; flex-shrink: 0; }
+        #tl-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        .cards-column { flex: 1; display: flex; flex-direction: column; gap: 20px; }
 
         .job-card {
-            background: rgba(20, 28, 43, 0.4);
-            border: 1px solid var(--border-subtle);
-            border-radius: 16px;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-            opacity: 0.4;
-            transform: scale(0.98);
-            transform-origin: center left;
-            position: relative;
-            /* overflow is visible so position:sticky works inside */
+            background: rgba(20, 28, 43, 0.4); border: 1px solid var(--border-subtle);
+            border-radius: 16px; cursor: pointer; transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            opacity: 0.4; transform: scale(0.98); transform-origin: center left; position: relative;
         }
-        
         .job-card:hover { border-color: rgba(255,255,255,0.2); }
-
         .job-card.active {
             opacity: 1; transform: scale(1); background: rgba(30, 41, 59, 0.8);
             border-color: rgba(255,255,255,0.15); box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
 
-        .job-content-sticky {
-            position: sticky; top: 40px; /* Distance from top of screen as you scroll past */
-            padding: 30px;
-        }
-
+        .job-content-sticky { position: sticky; top: 40px; padding: 30px; }
         .job-card .kicker { font-size: 0.8rem; color: var(--accent-blue); font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
         .job-card h3 { margin: 0 0 5px 0; font-size: 1.3rem; font-weight: 700; color: var(--text-main); }
         .job-card h4 { margin: 0 0 15px 0; font-size: 0.95rem; color: var(--text-muted); font-weight: 500; }
@@ -200,6 +176,10 @@
         .edu-card h3 { margin: 0 0 10px 0; font-size: 1.1rem; color: var(--text-main); }
         .edu-card p { margin: 0; font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; }
         .edu-card .highlight { color: var(--accent-purple); font-weight: 600; display: block; margin-bottom: 5px; }
+        
+        /* Award link styles */
+        .edu-card a.highlight-link { text-decoration: none; transition: color 0.2s; }
+        .edu-card a.highlight-link:hover { color: var(--accent-blue); text-decoration: underline; }
 
         /* --- SKILLS CONSTELLATION --- */
         .skills-container {
@@ -210,9 +190,9 @@
         #skills-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 
         /* --- PUBLICATIONS STACK --- */
-        .pubs-container { position: relative; height: 400px; display: flex; align-items: center; justify-content: center; }
+        .pubs-container { position: relative; height: 500px; display: flex; align-items: center; justify-content: center; }
         .paper {
-            position: absolute; width: 100%; max-width: 600px;
+            position: absolute; width: 100%; max-width: 650px;
             background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             padding: 35px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); border-top: 3px solid var(--accent-blue);
             box-shadow: 0 20px 40px rgba(0,0,0,0.6); cursor: pointer; user-select: none;
@@ -225,9 +205,16 @@
         .paper.swipe-out { transform: translateX(80%) translateY(-50px) rotate(10deg) scale(1.05) !important; opacity: 0 !important; pointer-events: none; }
         .pubs-container.restacking .paper { transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.4s !important; opacity: 0 !important; }
 
-        .paper h3 { margin: 0 0 12px 0; font-size: 1.2rem; font-weight: 700; color: #fff; line-height: 1.4; }
-        .paper p { margin: 0; font-size: 0.95rem; color: #cbd5e1; line-height: 1.6; }
         .paper-year { display: inline-block; margin-bottom: 15px; font-size: 0.8rem; font-weight: 700; color: var(--accent-blue); background: rgba(56, 189, 248, 0.1); padding: 5px 12px; border-radius: 12px; }
+        .paper h3 { margin: 0 0 10px 0; font-size: 1.25rem; font-weight: 700; color: #fff; line-height: 1.4; }
+        .paper p.authors { margin: 0 0 15px 0; font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
+        .paper p.abstract { margin: 0 0 20px 0; font-size: 0.95rem; color: #cbd5e1; line-height: 1.6; }
+        
+        .paper a.pub-link {
+            display: inline-block; color: var(--accent-blue); font-size: 0.9rem; font-weight: 600;
+            text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.2s;
+        }
+        .paper a.pub-link:hover { border-bottom-color: var(--accent-blue); }
 
         /* --- MODAL OVERLAY --- */
         .modal-overlay {
@@ -261,9 +248,10 @@
             .nav-links { display: none; } 
             .interests { justify-content: center; }
             .right-pane { padding: 20px; gap: 80px; }
-            .timeline-graphics { width: 60px; } /* Shrink timeline gutter */
+            .timeline-graphics { width: 60px; } 
             .edu-grid { grid-template-columns: 1fr; }
             .skills-container { height: 450px; }
+            .pubs-container { height: 500px; }
         }
     </style>
 </head>
@@ -304,6 +292,11 @@
                         <span class="tag">Comp Modeling</span>
                         <span class="tag">Psychometrics</span>
                     </div>
+
+                    <a href="https://www.linkedin.com/in/justinpurl/" target="_blank" rel="noopener" class="linkedin-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                        Connect on LinkedIn
+                    </a>
                     
                     <div class="nav-links">
                         <a href="#experience">Experience Timeline</a>
@@ -349,7 +342,7 @@
                             <p>Psychology (Minor in English).</p>
                         </div>
                         <div class="edu-card" style="grid-column: 1 / -1;">
-                            <span class="highlight">Wiley Award for Excellence</span>
+                            <a href="https://www.siop.org/Foundation/Awards/Wiley-Award-for-Excellence-in-Survey-Research" target="_blank" class="highlight highlight-link">Wiley Award for Excellence ↗</a>
                             <h3>Society for Industrial and Organizational Psychology (SIOP)</h3>
                             <p>Awarded for excellence in Survey Research for work on Google's annual climate survey.</p>
                         </div>
@@ -370,31 +363,47 @@
                     <p style="color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px;">Tap top card to cycle deck</p>
                     
                     <div class="pubs-container" id="pub-stack">
+                        
                         <div class="paper">
                             <span class="paper-year">2017</span>
                             <h3>A computational model of self-efficacy’s various effects on performance</h3>
-                            <p>Vancouver, J. B., & Purl, J. D. <br>Journal of Applied Psychology, 102(4), 599-616.</p>
+                            <p class="authors">Vancouver, J. B., & Purl, J. D. | <em>Journal of Applied Psychology</em></p>
+                            <p class="abstract">A computational model of the multiple processes presumed to create positive, negative, and null effects for self-efficacy is presented, moving the debate forward by examining both within-person and between-person variants.</p>
+                            <a href="https://doi.org/10.1037/apl0000177" target="_blank" rel="noopener" class="pub-link">Read Paper ↗</a>
                         </div>
+                        
                         <div class="paper">
                             <span class="paper-year">2019</span>
                             <h3>Turnover modeling and event history analysis</h3>
-                            <p>McCloy, R., Purl, J., & Banjanovic, E. <br>Industrial & Org. Psychology.</p>
+                            <p class="authors">McCloy, R. A., Purl, J. D., & Banjanovic, E. S. | <em>Industrial and Organizational Psychology</em></p>
+                            <p class="abstract">An exploration of event history analysis as a critical methodology for accurate turnover modeling within industrial and organizational psychology, providing insights into structural retention challenges.</p>
+                            <a href="https://doi.org/10.1017/iop.2019.56" target="_blank" rel="noopener" class="pub-link">Read Paper ↗</a>
                         </div>
+                        
                         <div class="paper">
                             <span class="paper-year">2021</span>
-                            <h3>Expert judgments to inform bayesian models of insider threat risk</h3>
-                            <p>Greitzer, F. L., Purl, J., et al. <br>JoWUA, 12(2), 3-47.</p>
+                            <h3>Use of expert judgments to inform Bayesian models of insider threat risk</h3>
+                            <p class="authors">Greitzer, F. L., Purl, J., Sticha, P., Yu, M. C., & Lee, J. | <em>JoWUA</em></p>
+                            <p class="abstract">This study investigates the relationship between risk judgments and probability judgments to support the cross-fertilization of ontology details with probabilistic insider threat modeling approaches.</p>
+                            <a href="https://doi.org/10.22667/JOWUA.2021.06.30.003" target="_blank" rel="noopener" class="pub-link">Read Paper ↗</a>
                         </div>
+                        
                         <div class="paper">
                             <span class="paper-year">2022</span>
-                            <h3>Demands, resources, well-being and strain: Meta-analyzing moderator effects</h3>
-                            <p>Fila, M. J., Purl, J., & Jang, R. <br>Applied Research in Quality of Life.</p>
+                            <h3>Demands, resources, well-being and strain: Meta-analyzing moderator effects of workforce racial composition</h3>
+                            <p class="authors">Fila, M. J., Purl, J., & Jang, R. | <em>Applied Research in Quality of Life</em></p>
+                            <p class="abstract">A comprehensive meta-analysis exploring how the racial composition of a workforce serves as a critical moderator for the effects of job demands and resources on overall employee well-being and strain.</p>
+                            <a href="https://doi.org/10.1007/s11482-021-10018-8" target="_blank" rel="noopener" class="pub-link">Read Paper ↗</a>
                         </div>
+                        
                         <div class="paper">
                             <span class="paper-year">2022</span>
                             <h3>Advances in game-like personality assessment</h3>
-                            <p>Harman, J. L., & Purl, J. <br>Trends in Psychology, 1-15.</p>
+                            <p class="authors">Harman, J. L., & Purl, J. | <em>Trends in Psychology</em></p>
+                            <p class="abstract">An overview of the emerging research and practical applications surrounding gamified and game-like modes of assessment, focusing on validity, candidate experience, and measurement accuracy.</p>
+                            <a href="https://scholar.google.com/scholar?q=Advances+in+game-like+personality+assessment+Harman+Purl" target="_blank" rel="noopener" class="pub-link">Search on Google Scholar ↗</a>
                         </div>
+                        
                     </div>
                 </section>
 
@@ -427,20 +436,17 @@
         const expContainer = document.getElementById('exp-container');
         const tlCanvas = document.getElementById('tl-canvas');
         const tlCtx = tlCanvas.getContext('2d');
-        const pxPerMonth = 25; // Math distance multiplier
+        const pxPerMonth = 25; 
 
-        // Build robust Job Cards using CSS Min-Height for safety, but expanding based on math
         jobs.forEach((job, index) => {
             const duration = job.startM - job.endM;
             const mathHeight = duration * pxPerMonth;
             
             const card = document.createElement('div');
             card.className = 'job-card';
-            // Apply calculated height, but ensure it's at least 220px so content never clips the view button
             card.style.height = `${Math.max(mathHeight, 220)}px`;
             
             let contentHtml = '';
-            // If the card is tall enough physically, render the bullets inline
             if (mathHeight >= 320) {
                 const bulletsHtml = job.bullets.map(b => `<li>${b}</li>`).join('');
                 contentHtml = `<div class="card-body"><ul>${bulletsHtml}</ul></div>`;
@@ -462,7 +468,6 @@
             expContainer.appendChild(card);
         });
 
-        // Setup dynamic Canvas drawing to connect the physical cards
         function resizeTlCanvas() {
             if(tlCanvas && tlCanvas.parentElement) {
                 tlCanvas.width = tlCanvas.parentElement.clientWidth;
@@ -475,10 +480,9 @@
         function drawTimeline() {
             tlCtx.clearRect(0, 0, tlCanvas.width, tlCanvas.height);
             
-            const xLine = tlCanvas.width - 30; // Spine sits near the right edge of the graphics column
+            const xLine = tlCanvas.width - 30; 
             const radius = 6;
             
-            // Draw Main Vertical Spine
             tlCtx.beginPath();
             tlCtx.strokeStyle = "rgba(255, 255, 255, 0.1)";
             tlCtx.lineWidth = 2;
@@ -486,16 +490,13 @@
             tlCtx.lineTo(xLine, tlCanvas.height);
             tlCtx.stroke();
 
-            // Iterate over DOM cards to draw connecting dots/dates perfectly aligned
             jobs.forEach((job) => {
                 const rect = job.element.getBoundingClientRect();
                 const parentRect = tlCanvas.parentElement.getBoundingClientRect();
                 
-                // Align dot with the top of the card + 40px (which aligns with the padding/title)
                 const yPos = (rect.top - parentRect.top) + 40; 
                 const isActive = job.element.classList.contains('active');
 
-                // Draw Connecting Line to Card
                 tlCtx.beginPath();
                 tlCtx.strokeStyle = isActive ? "rgba(56, 189, 248, 0.8)" : "rgba(255, 255, 255, 0.1)";
                 tlCtx.lineWidth = isActive ? 2 : 1;
@@ -503,7 +504,6 @@
                 tlCtx.lineTo(tlCanvas.width, yPos);
                 tlCtx.stroke();
 
-                // Draw Dot
                 tlCtx.beginPath();
                 tlCtx.arc(xLine, yPos, isActive ? radius + 2 : radius, 0, Math.PI * 2);
                 tlCtx.fillStyle = isActive ? "#38bdf8" : "#0a0f18";
@@ -512,17 +512,14 @@
                 tlCtx.lineWidth = 2;
                 tlCtx.stroke();
 
-                // Draw Date Label
                 tlCtx.fillStyle = isActive ? "#f8fafc" : "#8b9bb4";
                 tlCtx.font = isActive ? "bold 11px Inter" : "600 11px Inter";
                 tlCtx.textAlign = "right";
-                // Get starting year from string (e.g. "Apr 2026")
                 const yearText = job.date.split('-')[0].trim();
                 tlCtx.fillText(yearText, xLine - 15, yPos + 4);
             });
         }
 
-        // Scroll Tracker for Active Highlights
         function updateActiveCard() {
             const cards = document.querySelectorAll('.job-card');
             const focalPoint = window.innerHeight * 0.4; 
@@ -541,13 +538,11 @@
             cards.forEach(c => c.classList.remove('active'));
             if (closest) closest.classList.add('active');
             
-            // Redraw canvas colors based on active state
             drawTimeline(); 
         }
         
         window.addEventListener('scroll', updateActiveCard);
         
-        // Initial setup sequence
         setTimeout(() => {
             resizeTlCanvas();
             updateActiveCard();
@@ -649,7 +644,6 @@
 
                     level1Nodes.forEach((l1, i) => {
                         l1.baseAngle = i * angleStep;
-                        // Increased inner radius to clear the text
                         l1.radius = (60 + (Math.random() * 15)) * scaleFactor; 
                         processedNodes.push(l1);
 
@@ -660,7 +654,6 @@
 
                         children.forEach((child, j) => {
                             child.baseAngle = children.length === 1 ? l1.baseAngle : startAngle + (j * childStep);
-                            // Increased outer radius for a wider, cleaner spread
                             child.radius = (130 + (Math.random() * 25)) * scaleFactor; 
                             processedNodes.push(child);
                         });
@@ -685,7 +678,7 @@
                         if (d < 40 && d < minDist && n.level === 2) { minDist = d; hoveredNode = {node: n, rgb: cluster.rgb}; }
                     });
 
-                    // Draw Outer Perimeter (L2 nodes connected)
+                    // Outer Perimeter
                     let l2Nodes = cluster.nodes.filter(n => n.level === 2).sort((a,b) => a.baseAngle - b.baseAngle);
                     skCtx.beginPath();
                     skCtx.strokeStyle = `rgba(${cluster.rgb}, 0.15)`;
@@ -697,7 +690,7 @@
                     skCtx.closePath();
                     skCtx.stroke();
 
-                    // Draw Inner Branches (L1 to L2 only)
+                    // Inner Branches
                     cluster.nodes.forEach(n => {
                         if (n.level === 1) {
                             let children = cluster.nodes.filter(c => c.parent === n.id);
@@ -778,6 +771,9 @@
             const originalPapers = Array.from(stack.children); 
 
             stack.addEventListener('click', function(e) {
+                // Prevent swiping if clicking a link directly
+                if (e.target.tagName.toLowerCase() === 'a') return;
+                
                 if (isPubAnimating || stack.classList.contains('restacking')) return; 
                 
                 const topCard = stack.lastElementChild;
