@@ -26,7 +26,6 @@
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
         }
 
         /* Ambient Background */
@@ -41,12 +40,15 @@
             pointer-events: none; z-index: -1;
         }
 
+        /* Prevent horizontal scroll cleanly */
+        .page-wrapper { overflow-x: hidden; width: 100%; min-height: 100vh; }
+
         /* --- SPLIT SCREEN ARCHITECTURE --- */
         .layout {
             display: flex;
             flex-direction: row;
             min-height: 100vh;
-            max-width: 1600px;
+            max-width: 1500px;
             margin: 0 auto;
         }
 
@@ -55,13 +57,15 @@
             flex: 0 0 40%;
             max-width: 500px;
             padding: 40px;
-            position: relative;
+            align-self: flex-start; /* CRITICAL for sticky to work inside Flexbox */
+            position: sticky;
+            top: 0;
+            height: 100vh;
         }
         
         .sticky-wrapper {
-            position: sticky;
-            top: 40px;
-            height: calc(100vh - 80px);
+            height: 100%;
+            max-height: calc(100vh - 80px);
             background: var(--bg-surface);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border-subtle);
@@ -70,7 +74,10 @@
             display: flex;
             flex-direction: column;
             box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            overflow-y: auto; /* Handles short screens cleanly */
+            -ms-overflow-style: none; scrollbar-width: none;
         }
+        .sticky-wrapper::-webkit-scrollbar { display: none; }
 
         .profile-img-container { position: relative; width: 150px; height: 150px; margin-bottom: 30px; }
         .profile-img-container::before {
@@ -86,13 +93,13 @@
             border: 2px solid rgba(255,255,255,0.1); background-color: var(--bg-base);
         }
 
-        h1 { margin: 0 0 10px 0; font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; }
+        h1 { margin: 0 0 10px 0; font-size: 2.2rem; font-weight: 800; letter-spacing: -1px; }
         h2 { margin: 0 0 24px 0; font-size: 1.1rem; color: var(--accent-blue); font-weight: 500; line-height: 1.5; }
-        p.bio { font-size: 1rem; line-height: 1.7; color: var(--text-muted); font-weight: 400; margin-bottom: auto; }
+        p.bio { font-size: 0.95rem; line-height: 1.7; color: var(--text-muted); font-weight: 400; margin-bottom: auto; }
 
         .nav-links { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; }
         .nav-links a {
-            color: var(--text-muted); text-decoration: none; font-weight: 600; font-size: 0.9rem;
+            color: var(--text-muted); text-decoration: none; font-weight: 600; font-size: 0.85rem;
             text-transform: uppercase; letter-spacing: 1px; transition: color 0.2s;
             display: flex; align-items: center; gap: 10px;
         }
@@ -105,10 +112,10 @@
         /* RIGHT: SCROLLING CONTENT */
         .right-pane {
             flex: 1;
-            padding: 40px 60px 100px 40px;
+            padding: 40px 60px 100px 20px;
             display: flex;
             flex-direction: column;
-            gap: 120px; /* Massive spacing between major sections */
+            gap: 100px; 
         }
 
         .section-header {
@@ -119,10 +126,9 @@
             content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--border-subtle), transparent);
         }
 
-        /* --- EXPERIENCE TIMELINE (NATIVE SCROLL) --- */
+        /* --- EXPERIENCE TIMELINE --- */
         .experience-container { position: relative; padding-left: 40px; }
         
-        /* The vertical timeline line */
         .experience-container::before {
             content: ''; position: absolute; top: 0; bottom: 0; left: 10px;
             width: 2px; background: var(--border-subtle); border-radius: 2px;
@@ -133,23 +139,21 @@
             background: rgba(20, 28, 43, 0.4);
             border: 1px solid var(--border-subtle);
             border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 20px; /* Base margin, JS will increase this based on time */
-            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            padding: 25px;
+            margin-bottom: 15px; 
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
             transform-origin: left center;
-            opacity: 0.4;
+            opacity: 0.3;
             transform: scale(0.95) translateX(10px);
         }
 
-        /* Node on the timeline */
         .job-card::before {
-            content: ''; position: absolute; top: 35px; left: -35px;
+            content: ''; position: absolute; top: 30px; left: -35px;
             width: 12px; height: 12px; border-radius: 50%;
             background: var(--bg-base); border: 2px solid var(--text-muted);
-            transition: all 0.5s ease; z-index: 2;
+            transition: all 0.4s ease; z-index: 2;
         }
 
-        /* Active/Focal State (Triggered by Scroll) */
         .job-card.active {
             opacity: 1; transform: scale(1) translateX(0);
             background: rgba(30, 41, 59, 0.8);
@@ -161,35 +165,43 @@
             box-shadow: 0 0 15px var(--accent-blue);
         }
 
-        .job-card .date { font-size: 0.85rem; color: var(--accent-blue); font-weight: 600; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
-        .job-card h3 { margin: 0 0 5px 0; font-size: 1.4rem; font-weight: 700; color: var(--text-main); }
-        .job-card h4 { margin: 0 0 20px 0; font-size: 1rem; color: var(--text-muted); font-weight: 500; }
-        .job-card ul { margin: 0; padding-left: 20px; color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; }
-        .job-card li { margin-bottom: 8px; }
+        .job-card .date { font-size: 0.8rem; color: var(--accent-blue); font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .job-card h3 { margin: 0 0 5px 0; font-size: 1.3rem; font-weight: 700; color: var(--text-main); }
+        .job-card h4 { margin: 0 0 15px 0; font-size: 0.95rem; color: var(--text-muted); font-weight: 500; }
+        .job-card ul { margin: 0; padding-left: 20px; color: #cbd5e1; font-size: 0.9rem; line-height: 1.6; }
+        .job-card li { margin-bottom: 6px; }
         .job-card li::marker { color: var(--text-muted); }
         .job-card.active li::marker { color: var(--accent-blue); }
 
+        /* --- EDUCATION --- */
+        .edu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .edu-card {
+            background: rgba(20, 28, 43, 0.4);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px; padding: 25px;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .edu-card:hover { background: rgba(30, 41, 59, 0.8); border-color: rgba(255,255,255,0.15); }
+        .edu-card h3 { margin: 0 0 10px 0; font-size: 1.1rem; color: var(--text-main); }
+        .edu-card p { margin: 0; font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; }
+        .edu-card .highlight { color: var(--accent-purple); font-weight: 600; display: block; margin-bottom: 5px; }
+
         /* --- SKILLS CONSTELLATION --- */
         .skills-container {
-            position: relative;
-            height: 600px;
-            background: rgba(20, 28, 43, 0.3);
-            border: 1px solid var(--border-subtle);
-            border-radius: 24px;
-            overflow: hidden;
+            position: relative; height: 500px;
+            background: rgba(20, 28, 43, 0.3); border: 1px solid var(--border-subtle);
+            border-radius: 24px; overflow: hidden;
         }
         #skills-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 
         /* --- PUBLICATIONS STACK --- */
         .pubs-container {
-            position: relative;
-            height: 450px;
+            position: relative; height: 400px;
             display: flex; align-items: center; justify-content: center;
         }
 
         .paper {
-            position: absolute;
-            width: 100%; max-width: 600px;
+            position: absolute; width: 100%; max-width: 600px;
             background: rgba(30, 41, 59, 0.95);
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             padding: 35px; border-radius: 16px;
@@ -222,94 +234,122 @@
         /* --- MOBILE RESPONSIVENESS --- */
         @media (max-width: 1024px) {
             .layout { flex-direction: column; }
-            .left-pane { flex: none; width: 100%; max-width: 100%; padding: 20px; }
+            .left-pane { flex: none; width: 100%; max-width: 100%; height: auto; position: relative; padding: 20px; }
             .sticky-wrapper { 
-                position: relative; top: 0; height: auto; padding: 30px; 
+                height: auto; max-height: none; padding: 30px; 
                 flex-direction: column; align-items: center; text-align: center;
             }
-            .nav-links { display: none; } /* Hide side-nav on mobile */
+            .nav-links { display: none; } 
             .right-pane { padding: 20px; gap: 80px; }
-            .job-card { padding: 20px; }
+            .edu-grid { grid-template-columns: 1fr; }
             .skills-container { height: 450px; }
         }
     </style>
 </head>
 <body>
-
-    <div class="layout">
-        
-        <!-- LEFT: STICKY PROFILE -->
-        <aside class="left-pane">
-            <div class="sticky-wrapper">
-                <div class="profile-img-container">
-                    <img src="profile.jpg" alt="Justin D. Purl" class="profile-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzNlNGE1YyIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1zaXplPSI1MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2ZmZiI+👨‍💻PC90ZXh0Pjwvc3ZnPg=='">
-                </div>
-                <h1>Justin D. Purl</h1>
-                <h2>Head of People Systems & Analytics @ Archer</h2>
-                <p class="bio">I manage complex projects requiring deep knowledge of research methodology and statistics. I leverage advanced analytics, HRIS design, and custom AI agents to turn sparse data into highly actionable insights.</p>
-                
-                <div class="nav-links">
-                    <a href="#experience">Experience</a>
-                    <a href="#skills">Skills Ecosystem</a>
-                    <a href="#publications">Publications</a>
-                </div>
-            </div>
-        </aside>
-
-        <!-- RIGHT: SCROLLING CONTENT -->
-        <main class="right-pane">
-
-            <!-- EXPERIENCE SECTION -->
-            <section id="experience">
-                <h2 class="section-header">Experience</h2>
-                <div class="experience-container" id="exp-container">
-                    <!-- Cards injected by JS to allow time-based margin math -->
-                </div>
-            </section>
-
-            <!-- SKILLS SECTION -->
-            <section id="skills">
-                <h2 class="section-header">Skills Ecosystem</h2>
-                <div class="skills-container" id="skills-box">
-                    <canvas id="skills-canvas"></canvas>
-                </div>
-            </section>
-
-            <!-- PUBLICATIONS SECTION -->
-            <section id="publications">
-                <h2 class="section-header">Select Publications</h2>
-                <p style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px;">Tap top card to cycle deck</p>
-                
-                <div class="pubs-container" id="pub-stack">
-                    <div class="paper">
-                        <span class="paper-year">2017</span>
-                        <h3>A computational model of self-efficacy’s various effects on performance</h3>
-                        <p>Vancouver, J. B., & Purl, J. D. <br>Journal of Applied Psychology, 102(4), 599-616.</p>
+    <div class="page-wrapper">
+        <div class="layout">
+            
+            <!-- LEFT: STICKY PROFILE -->
+            <aside class="left-pane">
+                <div class="sticky-wrapper">
+                    <div class="profile-img-container">
+                        <img src="profile.jpg" alt="Justin D. Purl" class="profile-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzNlNGE1YyIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1zaXplPSI1MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2ZmZiI+👨‍💻PC90ZXh0Pjwvc3ZnPg=='">
                     </div>
-                    <div class="paper">
-                        <span class="paper-year">2019</span>
-                        <h3>Turnover modeling and event history analysis</h3>
-                        <p>McCloy, R., Purl, J., & Banjanovic, E. <br>Industrial & Org. Psychology.</p>
-                    </div>
-                    <div class="paper">
-                        <span class="paper-year">2021</span>
-                        <h3>Expert judgments to inform bayesian models of insider threat risk</h3>
-                        <p>Greitzer, F. L., Purl, J., et al. <br>JoWUA, 12(2), 3-47.</p>
-                    </div>
-                    <div class="paper">
-                        <span class="paper-year">2022</span>
-                        <h3>Demands, resources, well-being and strain: Meta-analyzing moderator effects</h3>
-                        <p>Fila, M. J., Purl, J., & Jang, R. <br>Applied Research in Quality of Life.</p>
-                    </div>
-                    <div class="paper">
-                        <span class="paper-year">2022</span>
-                        <h3>Advances in game-like personality assessment</h3>
-                        <p>Harman, J. L., & Purl, J. <br>Trends in Psychology, 1-15.</p>
+                    <h1>Justin D. Purl</h1>
+                    <h2>Head of People Systems & Analytics @ Archer</h2>
+                    
+                    <p class="bio">
+                        I am an Industrial/Organizational Psychologist (Ph.D. ABD) with a passion for blending human behavior, statistics, and technology. <br><br>
+                        Over the past decade, I have led teams at Google, TikTok, Zscaler, and Gilead Sciences, transforming how organizations approach people analytics. My expertise lies in designing HRIS architectures, developing custom AI agents, and applying advanced psychometrics and survival analysis to turn complex data into actionable strategies for talent acquisition and retention.
+                    </p>
+                    
+                    <div class="nav-links">
+                        <a href="#experience">Experience Timeline</a>
+                        <a href="#education">Education & Honors</a>
+                        <a href="#skills">Skills Ecosystem</a>
+                        <a href="#publications">Publications</a>
                     </div>
                 </div>
-            </section>
+            </aside>
 
-        </main>
+            <!-- RIGHT: SCROLLING CONTENT -->
+            <main class="right-pane">
+
+                <!-- EXPERIENCE SECTION -->
+                <section id="experience">
+                    <h2 class="section-header">Experience</h2>
+                    <div class="experience-container" id="exp-container">
+                        <!-- Cards injected by JS -->
+                    </div>
+                </section>
+
+                <!-- EDUCATION SECTION -->
+                <section id="education">
+                    <h2 class="section-header">Education & Honors</h2>
+                    <div class="edu-grid">
+                        <div class="edu-card">
+                            <span class="highlight">Ohio University</span>
+                            <h3>Ph.D. Candidate (ABD) & M.S.</h3>
+                            <p>Industrial and Organizational Psychology. <br>Advanced research in computational modeling and turnover analysis.</p>
+                        </div>
+                        <div class="edu-card">
+                            <span class="highlight">Saint Louis University</span>
+                            <h3>Bachelor of Arts</h3>
+                            <p>Psychology (Minor in English).</p>
+                        </div>
+                        <div class="edu-card" style="grid-column: 1 / -1;">
+                            <span class="highlight">Wiley Award for Excellence</span>
+                            <h3>Society for Industrial and Organizational Psychology (SIOP)</h3>
+                            <p>Awarded for excellence in Survey Research for work on Google's annual climate survey.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SKILLS SECTION -->
+                <section id="skills">
+                    <h2 class="section-header">Skills Ecosystem</h2>
+                    <div class="skills-container" id="skills-box">
+                        <canvas id="skills-canvas"></canvas>
+                    </div>
+                </section>
+
+                <!-- PUBLICATIONS SECTION -->
+                <section id="publications">
+                    <h2 class="section-header">Select Publications</h2>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px;">Tap top card to cycle deck</p>
+                    
+                    <div class="pubs-container" id="pub-stack">
+                        <div class="paper">
+                            <span class="paper-year">2017</span>
+                            <h3>A computational model of self-efficacy’s various effects on performance</h3>
+                            <p>Vancouver, J. B., & Purl, J. D. <br>Journal of Applied Psychology, 102(4), 599-616.</p>
+                        </div>
+                        <div class="paper">
+                            <span class="paper-year">2019</span>
+                            <h3>Turnover modeling and event history analysis</h3>
+                            <p>McCloy, R., Purl, J., & Banjanovic, E. <br>Industrial & Org. Psychology.</p>
+                        </div>
+                        <div class="paper">
+                            <span class="paper-year">2021</span>
+                            <h3>Expert judgments to inform bayesian models of insider threat risk</h3>
+                            <p>Greitzer, F. L., Purl, J., et al. <br>JoWUA, 12(2), 3-47.</p>
+                        </div>
+                        <div class="paper">
+                            <span class="paper-year">2022</span>
+                            <h3>Demands, resources, well-being and strain: Meta-analyzing moderator effects</h3>
+                            <p>Fila, M. J., Purl, J., & Jang, R. <br>Applied Research in Quality of Life.</p>
+                        </div>
+                        <div class="paper">
+                            <span class="paper-year">2022</span>
+                            <h3>Advances in game-like personality assessment</h3>
+                            <p>Harman, J. L., & Purl, J. <br>Trends in Psychology, 1-15.</p>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
     </div>
 
     <!-- MAIN JAVASCRIPT -->
@@ -336,18 +376,16 @@
 
         const expContainer = document.getElementById('exp-container');
         
-        // Build cards and inject time-based margins
+        // Build cards and inject mathematically condensed time-based margins
         jobs.forEach((job, index) => {
             const card = document.createElement('div');
             card.className = 'job-card';
             
-            // MATH: 1 month of time = 10px of extra scrolling distance
-            const timeMargin = job.monthsGapPrior * 10; 
-            // We apply this extra margin to the top of the card to create the gap
-            if(index > 0) card.style.marginTop = `${timeMargin + 20}px`; 
+            // Reduced multiplier from 10 to 4. Saves vertical space while keeping proportions.
+            const timeMargin = job.monthsGapPrior * 4; 
+            if(index > 0) card.style.marginTop = `${timeMargin + 10}px`; 
 
             const bulletsHtml = job.bullets.map(b => `<li>${b}</li>`).join('');
-            
             card.innerHTML = `
                 <div class="date">${job.date}</div>
                 <h3>${job.company}</h3>
@@ -357,25 +395,31 @@
             expContainer.appendChild(card);
         });
 
-        // Intersection Observer to handle the "Focal Active" state on scroll
-        const cards = document.querySelectorAll('.job-card');
-        const observerOptions = {
-            root: null,
-            rootMargin: '-30% 0px -30% 0px', // Triggers only when card is in the middle 40% of the screen
-            threshold: 0.1
-        };
+        // Rock-solid scroll tracker for Active highlighting
+        function updateActiveCard() {
+            const cards = document.querySelectorAll('.job-card');
+            const focalPoint = window.innerHeight * 0.35; // 35% down the screen
+            let closest = null;
+            let minDistance = Infinity;
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('active');
-                } else {
-                    entry.target.classList.remove('active');
+            cards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const cardCenter = rect.top + (rect.height / 2);
+                const distance = Math.abs(cardCenter - focalPoint);
+
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closest = card;
                 }
             });
-        }, observerOptions);
 
-        cards.forEach(card => observer.observe(card));
+            cards.forEach(c => c.classList.remove('active'));
+            if (closest) closest.classList.add('active');
+        }
+        
+        window.addEventListener('scroll', updateActiveCard);
+        // Fire once immediately on load to ensure the top item is highlighted
+        setTimeout(updateActiveCard, 100);
 
 
         /* =========================================
@@ -430,7 +474,6 @@
                 }
             ];
 
-            // Use ResizeObserver for rock-solid canvas sizing inside flex containers
             const resizeObserver = new ResizeObserver(entries => {
                 for (let entry of entries) {
                     skWidth = skCanvas.width = entry.contentRect.width;
@@ -487,7 +530,7 @@
                         if (d < 40 && d < minDist && n.level === 2) { minDist = d; hoveredNode = {node: n, rgb: cluster.rgb}; }
                     });
 
-                    // Draw Outer Perimeter
+                    // Outer Perimeter
                     let l2Nodes = cluster.nodes.filter(n => n.level === 2).sort((a,b) => a.baseAngle - b.baseAngle);
                     skCtx.beginPath();
                     skCtx.strokeStyle = `rgba(${cluster.rgb}, 0.15)`;
@@ -499,25 +542,26 @@
                     skCtx.closePath();
                     skCtx.stroke();
 
-                    // Draw Branches
+                    // Inner Branches (L1 to L2 ONLY. Center label floats free)
                     cluster.nodes.forEach(n => {
                         if (n.level === 1) {
-                            skCtx.beginPath(); skCtx.strokeStyle = `rgba(${cluster.rgb}, 0.15)`;
-                            skCtx.moveTo(cluster.cx, cluster.cy); skCtx.lineTo(n.x, n.y); skCtx.stroke();
-                            
                             let children = cluster.nodes.filter(c => c.parent === n.id);
                             children.forEach(c => {
-                                skCtx.beginPath(); skCtx.moveTo(n.x, n.y); skCtx.lineTo(c.x, c.y); skCtx.stroke();
+                                skCtx.beginPath();
+                                skCtx.strokeStyle = `rgba(${cluster.rgb}, 0.15)`;
+                                skCtx.moveTo(n.x, n.y); 
+                                skCtx.lineTo(c.x, c.y); 
+                                skCtx.stroke();
                             });
                         }
                     });
 
-                    // Draw Center Label
+                    // Center Label
                     skCtx.fillStyle = `rgba(${cluster.rgb}, 0.9)`;
                     skCtx.font = "bold 13px Inter"; skCtx.textAlign = "center";
                     skCtx.fillText(cluster.name, cluster.cx, cluster.cy + 4);
 
-                    // Draw Dots & Node Labels
+                    // Dots & Node Labels
                     cluster.nodes.forEach(n => {
                         skCtx.beginPath(); skCtx.arc(n.x, n.y, n.level === 1 ? 4 : 3, 0, Math.PI * 2);
                         skCtx.fillStyle = `rgb(${cluster.rgb})`; skCtx.fill();
@@ -534,7 +578,7 @@
                     });
                 });
 
-                // Mouse Interaction Tooltip
+                // Hover Tooltip
                 if (hoveredNode) {
                     skCtx.beginPath();
                     skCtx.strokeStyle = `rgba(${hoveredNode.rgb}, 0.8)`;
