@@ -26,6 +26,8 @@
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
+            /* Removed overflow-x hidden to ensure position: sticky works globally */
+            max-width: 100vw;
         }
 
         /* Ambient Background */
@@ -39,9 +41,6 @@
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.025'/%3E%3C/svg%3E");
             pointer-events: none; z-index: -1;
         }
-
-        /* Prevent horizontal scroll cleanly */
-        .page-wrapper { overflow-x: hidden; width: 100%; min-height: 100vh; }
 
         /* --- SPLIT SCREEN ARCHITECTURE --- */
         .layout {
@@ -57,7 +56,8 @@
             flex: 0 0 40%;
             max-width: 500px;
             padding: 40px;
-            align-self: flex-start; /* CRITICAL for sticky to work inside Flexbox */
+            /* Sticky fix: Align self to start prevents flex stretching */
+            align-self: flex-start; 
             position: sticky;
             top: 0;
             height: 100vh;
@@ -74,7 +74,7 @@
             display: flex;
             flex-direction: column;
             box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            overflow-y: auto; /* Handles short screens cleanly */
+            overflow-y: auto; 
             -ms-overflow-style: none; scrollbar-width: none;
         }
         .sticky-wrapper::-webkit-scrollbar { display: none; }
@@ -95,7 +95,7 @@
 
         h1 { margin: 0 0 10px 0; font-size: 2.2rem; font-weight: 800; letter-spacing: -1px; }
         h2 { margin: 0 0 24px 0; font-size: 1.1rem; color: var(--accent-blue); font-weight: 500; line-height: 1.5; }
-        p.bio { font-size: 0.95rem; line-height: 1.7; color: var(--text-muted); font-weight: 400; margin-bottom: auto; }
+        p.bio { font-size: 0.95rem; line-height: 1.7; color: #cbd5e1; font-weight: 300; margin-bottom: auto; }
 
         .nav-links { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; }
         .nav-links a {
@@ -116,6 +116,7 @@
             display: flex;
             flex-direction: column;
             gap: 100px; 
+            min-width: 0; /* Prevents flex blowout */
         }
 
         .section-header {
@@ -126,60 +127,86 @@
             content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--border-subtle), transparent);
         }
 
-        /* --- EXPERIENCE TIMELINE --- */
-        .experience-container { position: relative; padding-left: 40px; }
-        
-        .experience-container::before {
-            content: ''; position: absolute; top: 0; bottom: 0; left: 10px;
-            width: 2px; background: var(--border-subtle); border-radius: 2px;
+        /* --- MATHEMATICAL TIMELINE (EXPERIENCE) --- */
+        .experience-container { 
+            position: relative; 
+            width: 100%;
+            /* Height is set dynamically by JS based on mathematical months */
         }
 
+        /* The central vertical spine */
+        .timeline-spine {
+            position: absolute;
+            top: 0; bottom: 0; left: 100px;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--accent-blue) 0%, rgba(255,255,255,0.1) 15%, rgba(255,255,255,0.1) 100%);
+            border-radius: 2px;
+        }
+
+        /* Timeline Markers (Dates on the left) */
+        .tl-marker {
+            position: absolute;
+            left: 0; width: 85px; text-align: right;
+            font-size: 0.8rem; font-weight: 600; color: var(--text-muted);
+            transform: translateY(-50%); /* Center perfectly on the dot */
+        }
+
+        .tl-dot {
+            position: absolute;
+            left: 95px; width: 12px; height: 12px;
+            background: var(--bg-base); border: 2px solid var(--accent-blue);
+            border-radius: 50%; z-index: 5;
+            transform: translateY(-50%);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+        }
+
+        /* Job Cards (Height matches exact tenure) */
         .job-card {
-            position: relative;
+            position: absolute;
+            left: 140px; right: 0;
             background: rgba(20, 28, 43, 0.4);
             border: 1px solid var(--border-subtle);
             border-radius: 16px;
-            padding: 25px;
-            margin-bottom: 15px; 
+            cursor: pointer;
             transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-            transform-origin: left center;
-            opacity: 0.3;
-            transform: scale(0.95) translateX(10px);
+            opacity: 0.5;
+            transform: scale(0.98);
+            transform-origin: center left;
+            overflow: hidden; /* Contains the sticky inner content */
         }
-
-        .job-card::before {
-            content: ''; position: absolute; top: 30px; left: -35px;
-            width: 12px; height: 12px; border-radius: 50%;
-            background: var(--bg-base); border: 2px solid var(--text-muted);
-            transition: all 0.4s ease; z-index: 2;
-        }
+        
+        .job-card:hover { border-color: rgba(255,255,255,0.2); }
 
         .job-card.active {
-            opacity: 1; transform: scale(1) translateX(0);
+            opacity: 1; transform: scale(1);
             background: rgba(30, 41, 59, 0.8);
             border-color: rgba(255,255,255,0.15);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 20px rgba(56, 189, 248, 0.05);
-        }
-        .job-card.active::before {
-            background: var(--accent-blue); border-color: var(--accent-blue);
-            box-shadow: 0 0 15px var(--accent-blue);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 4px 0 0 var(--accent-blue);
         }
 
-        .job-card .date { font-size: 0.8rem; color: var(--accent-blue); font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        /* Sticky content wrapper keeps text visible on huge 4-year cards */
+        .job-content-sticky {
+            position: sticky;
+            top: 100px; /* Distance from top of screen as you scroll past it */
+            padding: 25px;
+        }
+
         .job-card h3 { margin: 0 0 5px 0; font-size: 1.3rem; font-weight: 700; color: var(--text-main); }
-        .job-card h4 { margin: 0 0 15px 0; font-size: 0.95rem; color: var(--text-muted); font-weight: 500; }
-        .job-card ul { margin: 0; padding-left: 20px; color: #cbd5e1; font-size: 0.9rem; line-height: 1.6; }
-        .job-card li { margin-bottom: 6px; }
-        .job-card li::marker { color: var(--text-muted); }
-        .job-card.active li::marker { color: var(--accent-blue); }
+        .job-card h4 { margin: 0 0 15px 0; font-size: 1rem; color: var(--text-muted); font-weight: 500; }
+        
+        .view-details-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 0.8rem; font-weight: 600; color: var(--accent-blue);
+            text-transform: uppercase; letter-spacing: 1px;
+            background: rgba(56, 189, 248, 0.1); padding: 6px 12px; border-radius: 20px;
+        }
+        .job-card.active .view-details-btn { background: rgba(56, 189, 248, 0.2); }
 
         /* --- EDUCATION --- */
         .edu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .edu-card {
-            background: rgba(20, 28, 43, 0.4);
-            border: 1px solid var(--border-subtle);
-            border-radius: 16px; padding: 25px;
-            transition: background 0.3s, border-color 0.3s;
+            background: rgba(20, 28, 43, 0.4); border: 1px solid var(--border-subtle);
+            border-radius: 16px; padding: 25px; transition: background 0.3s, border-color 0.3s;
         }
         .edu-card:hover { background: rgba(30, 41, 59, 0.8); border-color: rgba(255,255,255,0.15); }
         .edu-card h3 { margin: 0 0 10px 0; font-size: 1.1rem; color: var(--text-main); }
@@ -205,8 +232,7 @@
             background: rgba(30, 41, 59, 0.95);
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             padding: 35px; border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-top: 3px solid var(--accent-blue);
+            border: 1px solid rgba(255,255,255,0.1); border-top: 3px solid var(--accent-blue);
             box-shadow: 0 20px 40px rgba(0,0,0,0.6);
             cursor: pointer; user-select: none;
             transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s; 
@@ -231,6 +257,36 @@
             background: rgba(56, 189, 248, 0.1); padding: 5px 12px; border-radius: 12px;
         }
 
+        /* --- MODAL OVERLAY --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(9, 14, 23, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            z-index: 9999; display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        
+        .modal-content {
+            background: rgba(20, 27, 41, 0.95); border: 1px solid rgba(255,255,255,0.1); border-top: 3px solid var(--accent-blue);
+            border-radius: 20px; width: 90%; max-width: 650px; padding: 40px; position: relative;
+            transform: translateY(20px) scale(0.98); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.7);
+        }
+        .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
+        
+        .close-btn {
+            position: absolute; top: 20px; right: 24px; background: none; border: none; color: #8b9bb4;
+            font-size: 2rem; cursor: pointer; transition: color 0.2s;
+        }
+        .close-btn:hover { color: var(--text-main); }
+        
+        #modal-company { margin: 0; font-size: 1.8rem; font-weight: 800; color: var(--text-main); }
+        #modal-title { margin: 8px 0 24px 0; font-size: 1.1rem; color: var(--accent-blue); font-weight: 500; }
+        #modal-body { font-size: 0.95rem; line-height: 1.7; color: #cbd5e1; }
+        #modal-body ul { padding-left: 20px; margin: 0; }
+        #modal-body li { margin-bottom: 12px; }
+        #modal-body li::marker { color: var(--accent-blue); }
+
         /* --- MOBILE RESPONSIVENESS --- */
         @media (max-width: 1024px) {
             .layout { flex-direction: column; }
@@ -243,10 +299,28 @@
             .right-pane { padding: 20px; gap: 80px; }
             .edu-grid { grid-template-columns: 1fr; }
             .skills-container { height: 450px; }
+            
+            /* Tighten timeline on mobile */
+            .timeline-spine { left: 80px; }
+            .tl-marker { width: 65px; font-size: 0.75rem; }
+            .tl-dot { left: 75px; }
+            .job-card { left: 110px; }
+            .job-content-sticky { padding: 15px; top: 80px; }
         }
     </style>
 </head>
 <body>
+    
+    <!-- MODAL -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">×</button>
+            <h1 id="modal-company">Company</h1>
+            <h2 id="modal-title">Title</h2>
+            <div id="modal-body">Details go here...</div>
+        </div>
+    </div>
+
     <div class="page-wrapper">
         <div class="layout">
             
@@ -260,8 +334,8 @@
                     <h2>Head of People Systems & Analytics @ Archer</h2>
                     
                     <p class="bio">
-                        I am an Industrial/Organizational Psychologist (Ph.D. ABD) with a passion for blending human behavior, statistics, and technology. <br><br>
-                        Over the past decade, I have led teams at Google, TikTok, Zscaler, and Gilead Sciences, transforming how organizations approach people analytics. My expertise lies in designing HRIS architectures, developing custom AI agents, and applying advanced psychometrics and survival analysis to turn complex data into actionable strategies for talent acquisition and retention.
+                        I am an Industrial/Organizational Psychologist (Ph.D. ABD) with a passion for blending human behavior, advanced statistics, and modern technology. <br><br>
+                        Over the past decade, I have led technical teams at Google, TikTok, Zscaler, and Gilead Sciences to transform how organizations approach people analytics. My expertise lies in designing seamless HRIS architectures, developing custom AI agents, and applying psychometrics and predictive modeling to turn complex data into actionable strategies for talent acquisition and retention.
                     </p>
                     
                     <div class="nav-links">
@@ -276,11 +350,12 @@
             <!-- RIGHT: SCROLLING CONTENT -->
             <main class="right-pane">
 
-                <!-- EXPERIENCE SECTION -->
+                <!-- EXPERIENCE TIMELINE -->
                 <section id="experience">
                     <h2 class="section-header">Experience</h2>
                     <div class="experience-container" id="exp-container">
-                        <!-- Cards injected by JS -->
+                        <div class="timeline-spine"></div>
+                        <!-- Cards & Timeline Nodes Injected by JS -->
                     </div>
                 </section>
 
@@ -291,7 +366,7 @@
                         <div class="edu-card">
                             <span class="highlight">Ohio University</span>
                             <h3>Ph.D. Candidate (ABD) & M.S.</h3>
-                            <p>Industrial and Organizational Psychology. <br>Advanced research in computational modeling and turnover analysis.</p>
+                            <p>Industrial & Organizational Psychology. <br>Advanced research in computational modeling and turnover analysis.</p>
                         </div>
                         <div class="edu-card">
                             <span class="highlight">Saint Louis University</span>
@@ -357,73 +432,129 @@
     document.addEventListener("DOMContentLoaded", () => {
         
         /* =========================================
-           1. TIME-MAPPED EXPERIENCE TIMELINE
+           1. MATHEMATICAL EXPERIENCE TIMELINE
            ========================================= */
+        // Define timeline data. Months are calculated from Sept 2026 backwards.
+        const timelineEvents = [
+            { label: "Present", month: 0 },
+            { label: "Apr 2026", month: 5 },
+            { label: "Apr 2025", month: 17 },
+            { label: "Apr 2024", month: 29 },
+            { label: "Mar 2022", month: 54 },
+            { label: "Aug 2019", month: 85 },
+            { label: "Sept 2015", month: 132 }
+        ];
+
         const jobs = [
-            { company: "Archer", title: "Head of People Systems & Analytics", date: "Apr 2026 - Present", monthsGapPrior: 0, 
+            { company: "Archer", title: "Head of People Systems & Analytics", startM: 5, endM: 0, 
               bullets: ["Streamlined Workday and Greenhouse via interaction playbooks based on user journeys.", "Centralized workforce planning into a single dashboard aligning Finance, HRBP, and business leaders.", "Relaunched position management, comp planning, and recruiting templates."] },
-            { company: "Gilead Sciences", title: "Assoc. Director of People Analytics", date: "Apr 2025 - Apr 2026", monthsGapPrior: 12, 
+            { company: "Gilead Sciences", title: "Assoc. Director of People Analytics", startM: 17, endM: 5, 
               bullets: ["Managed 5-10 off-shore resources developing a custom agent to support an AI chatbot.", "Streamlined project management to increase delivery speed from 2 years to 3 months.", "Quantified the impact of compensation on employee retention and diagnosed drop-offs in underrepresented talent."] },
-            { company: "Zscaler", title: "Head of People Analytics & Insights", date: "Apr 2024 - Apr 2025", monthsGapPrior: 12, 
+            { company: "Zscaler", title: "Head of People Analytics & Insights", startM: 29, endM: 17, 
               bullets: ["Set strategy and vision for 7 analytics resources across the HR function.", "Designed and executed sentiment programs in partnership with the Culture team.", "Developed a forecast model of attrition with Finance and aggregated benchmark information to form effective DEI aspirations."] },
-            { company: "TikTok", title: "Head of Global People Analytics", date: "Mar 2022 - Apr 2024", monthsGapPrior: 25, 
+            { company: "TikTok", title: "Head of Global People Analytics", startM: 54, endM: 29, 
               bullets: ["Identified key leadership behaviors from Natural Language Processing of performance review text.", "Streamlined interview processes by quantifying the ROI across multiple interview stages.", "Forecasted headcount growth accounting for fluctuations in the labor market through a depressed macro economy."] },
-            { company: "Google", title: "Senior People Analyst", date: "Aug 2019 - Mar 2022", monthsGapPrior: 31, 
+            { company: "Google", title: "Senior People Analyst", startM: 85, endM: 54, 
               bullets: ["Lead Hiring Analyst: Developed advanced scoring methodologies globally to optimize validity and equity.", "Lead Innovation Analyst: Upgraded attrition modeling programs to incorporate survival analysis.", "Lead Productivity Analyst: Developed collaboration metrics to support evaluation of work-from-anywhere initiatives."] },
-            { company: "HumRRO", title: "Research Scientist", date: "Sept 2015 - Aug 2019", monthsGapPrior: 47, 
+            { company: "HumRRO", title: "Research Scientist", startM: 132, endM: 85, 
               bullets: ["Project Director: Led small teams on projects requiring complex analytic (NLP, Psychometrics) and programming experience.", "Innovation: Planned and executed development of an ontology of insider threat.", "Conducted psychometric analysis to support a large-scale educational testing program."] }
         ];
 
         const expContainer = document.getElementById('exp-container');
         
-        // Build cards and inject mathematically condensed time-based margins
+        // Define pixels per month for mathematical spacing
+        const isMobile = window.innerWidth <= 1024;
+        const pixelsPerMonth = isMobile ? 20 : 30; // 1 year = 360px on desktop
+        const totalHeight = 132 * pixelsPerMonth;
+        expContainer.style.height = `${totalHeight + 50}px`; // Extra padding at bottom
+
+        // Inject Timeline Markers (Dots & Dates)
+        timelineEvents.forEach(event => {
+            const yPos = event.month * pixelsPerMonth;
+            
+            const marker = document.createElement('div');
+            marker.className = 'tl-marker';
+            marker.style.top = `${yPos}px`;
+            marker.innerText = event.label;
+            expContainer.appendChild(marker);
+
+            const dot = document.createElement('div');
+            dot.className = 'tl-dot';
+            dot.style.top = `${yPos}px`;
+            expContainer.appendChild(dot);
+        });
+
+        // Inject Job Cards
         jobs.forEach((job, index) => {
+            const topPos = job.endM * pixelsPerMonth;
+            const height = (job.startM - job.endM) * pixelsPerMonth;
+            
             const card = document.createElement('div');
             card.className = 'job-card';
+            card.style.top = `${topPos}px`;
+            // Add a 10px gap at the bottom so cards don't visually merge into one solid block
+            card.style.height = `${Math.max(height - 10, 130)}px`; // Minimum height enforcement
             
-            // Reduced multiplier from 10 to 4. Saves vertical space while keeping proportions.
-            const timeMargin = job.monthsGapPrior * 4; 
-            if(index > 0) card.style.marginTop = `${timeMargin + 10}px`; 
-
-            const bulletsHtml = job.bullets.map(b => `<li>${b}</li>`).join('');
             card.innerHTML = `
-                <div class="date">${job.date}</div>
-                <h3>${job.company}</h3>
-                <h4>${job.title}</h4>
-                <ul>${bulletsHtml}</ul>
+                <div class="job-content-sticky">
+                    <h3>${job.company}</h3>
+                    <h4>${job.title}</h4>
+                    <span class="view-details-btn">View Details ↗</span>
+                </div>
             `;
+            
+            // Bind Modal opening to this specific card's data
+            card.onclick = () => window.openModal(job);
+            
             expContainer.appendChild(card);
         });
 
         // Rock-solid scroll tracker for Active highlighting
         function updateActiveCard() {
             const cards = document.querySelectorAll('.job-card');
-            const focalPoint = window.innerHeight * 0.35; // 35% down the screen
+            // Look for the card intersecting the upper-middle of the screen
+            const focalPoint = window.innerHeight * 0.4; 
             let closest = null;
             let minDistance = Infinity;
 
             cards.forEach(card => {
                 const rect = card.getBoundingClientRect();
-                const cardCenter = rect.top + (rect.height / 2);
-                const distance = Math.abs(cardCenter - focalPoint);
-
-                if (distance < minDistance) {
-                    minDistance = distance;
+                // We check the TOP of the card, not the center, since cards can be taller than the screen
+                const cardActivePoint = rect.top;
+                // It is active if the top is above the focal point, AND the bottom hasn't passed it yet
+                if (rect.top < focalPoint && rect.bottom > focalPoint * 0.5) {
                     closest = card;
                 }
             });
 
             cards.forEach(c => c.classList.remove('active'));
+            // If no card strictly encompasses the focal point, highlight the very first one if we are near the top
+            if (!closest && cards[0].getBoundingClientRect().top > 0) {
+                closest = cards[0];
+            }
             if (closest) closest.classList.add('active');
         }
         
         window.addEventListener('scroll', updateActiveCard);
-        // Fire once immediately on load to ensure the top item is highlighted
         setTimeout(updateActiveCard, 100);
 
 
         /* =========================================
-           2. SKILLS CONSTELLATION
+           2. MODAL LOGIC
+           ========================================= */
+        window.openModal = function(job) {
+            document.getElementById('modal-company').innerText = job.company;
+            document.getElementById('modal-title').innerText = job.title;
+            const list = job.bullets.map(b => `<li>${b}</li>`).join('');
+            document.getElementById('modal-body').innerHTML = `<ul>${list}</ul>`;
+            document.getElementById('modal').classList.add('active');
+        }
+        window.closeModal = function() { 
+            document.getElementById('modal').classList.remove('active'); 
+        }
+
+        /* =========================================
+           3. SKILLS CONSTELLATION
            ========================================= */
         const skCanvas = document.getElementById('skills-canvas');
         if (skCanvas) {
@@ -530,7 +661,7 @@
                         if (d < 40 && d < minDist && n.level === 2) { minDist = d; hoveredNode = {node: n, rgb: cluster.rgb}; }
                     });
 
-                    // Outer Perimeter
+                    // Draw Outer Perimeter (Level 2 to Level 2 ONLY)
                     let l2Nodes = cluster.nodes.filter(n => n.level === 2).sort((a,b) => a.baseAngle - b.baseAngle);
                     skCtx.beginPath();
                     skCtx.strokeStyle = `rgba(${cluster.rgb}, 0.15)`;
@@ -542,7 +673,8 @@
                     skCtx.closePath();
                     skCtx.stroke();
 
-                    // Inner Branches (L1 to L2 ONLY. Center label floats free)
+                    // Draw Inner Branches (Level 1 to Level 2 ONLY)
+                    // The Center Label floats completely free, disconnected.
                     cluster.nodes.forEach(n => {
                         if (n.level === 1) {
                             let children = cluster.nodes.filter(c => c.parent === n.id);
@@ -613,7 +745,7 @@
         }
 
         /* =========================================
-           3. PUBLICATION STACK LOGIC
+           4. PUBLICATION STACK LOGIC
            ========================================= */
         const stack = document.getElementById('pub-stack');
         let pubClicks = 0;
